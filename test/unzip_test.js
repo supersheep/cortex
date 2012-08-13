@@ -1,4 +1,4 @@
-var zipper = require('./zipper');
+var zipper = require('../util/zipper');
 
 
 zipper.unzip("b.zip","b",function(err){
