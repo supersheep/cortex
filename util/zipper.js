@@ -62,7 +62,7 @@ function unzip(zip,folder,callback){
 	unzip.on('exit',function(code){
 		if(code !== 0){
 			callback(code.toString());
-			process.end("zip exit with code",code);
+			process.exit("zip exit with code",code);
 		}else{
 			if(folder !== foldername){
 				_rename(foldername,folder,function(err,data){
