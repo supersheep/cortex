@@ -5,10 +5,8 @@ fs = require('fs'),
 REGEX_REPLACE_FILENAME = /\/[^\/]+$/;
 
 
-function moveFileSync(path, fromDir, toDir){
-    var resource = fromDir + '/' + path,
-        destination = toDir + '/' + path,
-        is_success = false,
+function moveFileSync(resource, destination){
+    var is_success = false,
         fd,
         content;
         
