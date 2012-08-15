@@ -12,7 +12,7 @@ function moveFileSync(path, fromDir, toDir){
         fd,
         content;
         
-    if(fs.existsSync(resource)){
+    if(isFile(resource)){
         fd = fs.openSync(destination, 'w+');
         content = fs.readFileSync(resource);
         
@@ -60,7 +60,7 @@ function mkdirSync(dir){
     while(split.length){
         tester = split.join('/');
     
-        if(!fs.existsSync(tester) || !fs.statSync(tester).isDirectory()){
+        if(!isDirectory(tester)){
             directory_stack.push(split.pop());
         }else{
             break;
@@ -105,10 +105,23 @@ function traverseDir(root, callback){
 };
 
 
+function isFile(file){
+    return fs.existsSync(file) && fs.statSync(file).isFile();
+};
+
+
+function isDirectory(file){
+    return fs.existsSync(file) && fs.statSync(file).isDirectory();
+}; 
+
+
 module.exports = {
     moveFileSync    : moveFileSync,
     writeFileSync   : writeFileSync,
     traverseDir     : traverseDir,
     emptyDir        : emptyDir,
-    mkdirSync       : mkdirSync
+    mkdirSync       : mkdirSync,
+    isFile          : isFile,
+    isDirectory     : isDirectory
 };
+
