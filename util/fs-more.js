@@ -17,6 +17,8 @@ function moveFileSync(path, fromDir, toDir){
         content = fs.readFileSync(resource);
         
         fs.writeSync(fd, content);
+        
+        is_success = true;
     }
     
     return is_success;
@@ -78,26 +80,36 @@ function mkdirSync(dir){
 /**
  * @param {string} root
  * @param {function(file_data)} callback
+    file_data {Object}{
+        fullPath: {string} full dir path
+        relPath: {string} path relative to the root
+        path: {string}
+        isFile: {boolean=} true if the current item is a normal file
+        isDirectory: {boolean=} true if the current item is a directory
+    }
  */
 function traverseDir(root, callback){
-    var dir_content = fs.readdirSync(root);
+    var dir_content = fs.readdirSync(root),
+        rel = arguments[2] || '';
     
-    dir_content.forEach(function(file){
-        var full_path = root + '/' + file,
+    dir_content.forEach(function(current){
+        var full_path = root + '/' + current,
             stat = fs.statSync(full_path);
             
         if(stat.isFile()){
             callback({
-                path: file,
+                path: current,
                 fullPath: full_path,
+                relPath: rel + current,
                 isFile: true
             });
             
         }else if(stat.isDirectory()){
-            traverser(full_path, callback);
+            traverseDir(full_path, callback, rel + current + '/');
             callback({
-                path: file,
+                path: current,
                 fullPath: full_path,
+                relPath: rel + current,
                 isDirectory: true
             });
         }
