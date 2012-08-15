@@ -2,6 +2,8 @@ var
 
 fs = require('fs'),
 
+REGEX_REPLACE_FILENAME = /\/[^\/]+$/;
+
 
 function moveFileSync(path, fromDir, toDir){
     var resource = fromDir + '/' + path,
@@ -21,7 +23,19 @@ function moveFileSync(path, fromDir, toDir){
 };
 
 
+/**
+ * @param {string} path
+ * @param {string|buffer} content
+ */
 function writeFileSync(path, content){
+    if(!REGEX_REPLACE_FILENAME.test(path)){
+        return false;
+    }
+    
+    var dir = path.replace(REGEX_REPLACE_FILENAME, '');
+    
+    mkdirSync(dir);
+    
     var fd = fs.openSync(path, 'w+');
     
     fs.writeSync(fd, content);
@@ -32,6 +46,32 @@ function emptyDir(root){
     traverseDir(root, function(info){
         info.isFile ? fs.unlinkSync(info.fullPath) : fs.rmdirSync(info.fullPath);
     });
+};
+
+
+/**
+ * unlike fs.mkdirSync, fs-more.mkdirSync will act as `mkdir -p`
+ */
+function mkdirSync(dir){
+    var split = dir.split('/'),
+        directory_stack = [],
+        tester;
+        
+    while(split.length){
+        tester = split.join('/');
+    
+        if(!fs.existsSync(tester) || !fs.statSync(tester).isDirectory()){
+            directory_stack.push(split.pop());
+        }else{
+            break;
+        }
+    }
+    
+    dir = tester;
+    
+    while(directory_stack.length){
+        fs.mkdirSync(dir = dir + '/' + directory_stack.pop());
+    }
 };
 
 
@@ -69,5 +109,6 @@ module.exports = {
     moveFileSync    : moveFileSync,
     writeFileSync   : writeFileSync,
     traverseDir     : traverseDir,
-    emptyDir        : emptyDir
+    emptyDir        : emptyDir,
+    mkdirSync       : mkdirSync
 };
