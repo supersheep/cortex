@@ -12,11 +12,13 @@ function moveFileSync(path, fromDir, toDir){
         fd,
         content;
         
-    if(fs.existsSync(resource)){
+    if(isFile(resource)){
         fd = fs.openSync(destination, 'w+');
         content = fs.readFileSync(resource);
         
         fs.writeSync(fd, content);
+        
+        is_success = true;
     }
     
     return is_success;
@@ -60,7 +62,7 @@ function mkdirSync(dir){
     while(split.length){
         tester = split.join('/');
     
-        if(!fs.existsSync(tester) || !fs.statSync(tester).isDirectory()){
+        if(!isDirectory(tester)){
             directory_stack.push(split.pop());
         }else{
             break;
@@ -78,26 +80,36 @@ function mkdirSync(dir){
 /**
  * @param {string} root
  * @param {function(file_data)} callback
+    file_data {Object}{
+        fullPath: {string} full dir path
+        relPath: {string} path relative to the root
+        path: {string}
+        isFile: {boolean=} true if the current item is a normal file
+        isDirectory: {boolean=} true if the current item is a directory
+    }
  */
 function traverseDir(root, callback){
-    var dir_content = fs.readdirSync(root);
+    var dir_content = fs.readdirSync(root),
+        rel = arguments[2] || '';
     
-    dir_content.forEach(function(file){
-        var full_path = root + '/' + file,
+    dir_content.forEach(function(current){
+        var full_path = root + '/' + current,
             stat = fs.statSync(full_path);
             
         if(stat.isFile()){
             callback({
-                path: file,
+                path: current,
                 fullPath: full_path,
+                relPath: rel + current,
                 isFile: true
             });
             
         }else if(stat.isDirectory()){
-            traverser(full_path, callback);
+            traverseDir(full_path, callback, rel + current + '/');
             callback({
-                path: file,
+                path: current,
                 fullPath: full_path,
+                relPath: rel + current,
                 isDirectory: true
             });
         }
@@ -105,10 +117,23 @@ function traverseDir(root, callback){
 };
 
 
+function isFile(file){
+    return fs.existsSync(file) && fs.statSync(file).isFile();
+};
+
+
+function isDirectory(file){
+    return fs.existsSync(file) && fs.statSync(file).isDirectory();
+}; 
+
+
 module.exports = {
     moveFileSync    : moveFileSync,
     writeFileSync   : writeFileSync,
     traverseDir     : traverseDir,
     emptyDir        : emptyDir,
-    mkdirSync       : mkdirSync
+    mkdirSync       : mkdirSync,
+    isFile          : isFile,
+    isDirectory     : isDirectory
 };
+
