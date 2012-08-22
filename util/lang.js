@@ -15,6 +15,8 @@ function _type(obj, strict){
 
 var 
 
+undef,
+
 toString = Object.prototype.toString,
 	
 // basic javascript types

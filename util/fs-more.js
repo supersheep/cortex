@@ -15,6 +15,7 @@ function moveFileSync(resource, destination){
         content = fs.readFileSync(resource);
         
         fs.writeSync(fd, content);
+        fs.closeSync(fd);
         
         is_success = true;
     }
@@ -39,6 +40,7 @@ function writeFileSync(path, content){
     var fd = fs.openSync(path, 'w+');
     
     fs.writeSync(fd, content);
+    fs.closeSync(fd);
 };
 
 

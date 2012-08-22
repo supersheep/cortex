@@ -24,6 +24,8 @@ EventProxy.prototype = {
         }else if(type.isString(subject)){
             this.queue.push(subject);
         }
+        
+        return this;
     },
     
     trigger: function(subject){
@@ -40,10 +42,23 @@ EventProxy.prototype = {
         }
         
         this._check();
+        return this;
+    },
+    
+    hangUp: function(){
+        this._hangup = true;  
+        return this;
+    },
+    
+    resume: function(){
+        this._hangup = false;
+        this._check();
+        
+        return this;
     },
     
     _check: function(){
-        if(this.queue.length === 0 && this.count < 1){
+        if(this.queue.length === 0 && this.count < 1 && !this._hangup){
             this.callback();
             this.callback = NOOP;
         }
