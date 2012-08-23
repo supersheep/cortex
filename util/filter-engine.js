@@ -22,7 +22,7 @@ FilterEngine.prototype = {
 			 */
 			filter.parse && filter.parse(function(err){
     			if(err){
-    			     throw error;
+    			     throw new Error(err);
     			 }else{
         			 self.done(mod.name);
     			}
@@ -32,7 +32,12 @@ FilterEngine.prototype = {
 	},
 	
 	done: function(name){
-		
+		console.log("filterEngine:%s done",name);
+		var index = this.filters.indexOf(name);
+		this.filters.splice(name);
+		if(this.filters.length == 0){
+			this._teardown();
+		}
 	},
 	
 	_check: function(){
@@ -40,7 +45,7 @@ FilterEngine.prototype = {
 	},
 	
 	_teardown: function(){
-	    
+		process.exit();
 	}
 }	
 
