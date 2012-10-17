@@ -105,13 +105,13 @@ function traverseDir(root, callback){
             });
             
         }else if(stat.isDirectory()){
-            traverseDir(full_path, callback, rel + current + '/');
             callback({
                 path: current,
                 fullPath: full_path,
                 relPath: rel + current,
                 isDirectory: true
             });
+            traverseDir(full_path, callback, rel + current + '/');
         }
     });
 };
