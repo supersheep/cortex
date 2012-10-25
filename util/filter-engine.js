@@ -1,71 +1,85 @@
-var tracer = require("tracer").colorConsole();
+var async = require("async");
+
 
 // Filters驱动器
 function FilterEngine(){
-    this.filter_parse = [];
+    this.filter_setup = [];
+    this.filter_run = [];
     this.filter_tearDown = [];
 }
 FilterEngine.prototype = {
     assign : function(name,config){
         var Filter = require("../filters/"+name);
-        var filter = new Filter(config);
+        var filter = Filter.create ? Filter.create(config) : Filter;
         var mod = {name:name,filter:filter};
-        this.filter_parse.push(mod);
+
+
+        this.filter_setup.push(mod);
+        this.filter_run.push(mod);
         this.filter_tearDown.push(mod);
     },
 
-    run:function(){
-        this._run("parse");
+    start:function(){
+        this._run("setup");
     },
 
-    _tearDown: function(){
+    run:function(){
+        this._run("run");
+    },
+
+    tearDown:function(){
         this._run("tearDown");
     },
 
     _run:function(step){
         var self = this;
-        self["filter_"+step].forEach(function(mod){
+
+        self["filter_"+step].forEach(function(mod,i){
+
             var filter = mod.filter;
             /**
              * @type {Object} status {
                      passed: {boolean}
                      msg: {string}
                  }
-             */
-            filter[step] && filter[step](function(err){
-                if(err){
-                     throw new Error(err);
-                 }else{
-                     self._done(mod.name,step);
-                }
-            });
+             */      
+            
+            if(filter[step]){
+                filter[step](function(err){
+                    if(err){
+                         throw new Error(err);
+                     }else{
+                         self._done(mod.name,step);
+                    }
+                });
+            }else{
+                self._done(mod.name,step);
+            }
         });
     },
     _done: function(name,step){
 
-        tracer.info("filterEngine:%s.%s处理完毕",name,step);
+        console.log("filterEngine:%s.%s done",name,step);
         var steps = this["filter_"+step];
 
         var index = steps.indexOf(name);
         steps.splice(name);
         if(steps.length == 0){
-            if(step == "parse"){
-                this._tearDown();
+            if(step == "setup"){
+                this.run();
+            }else if(step == "run"){
+                this.tearDown();
             }else if(step == "tearDown"){
-                this._allDown();
+                this.allDown();
             }
         }
     },
     
-    _check: function(){
-        
-    },
-    
-    _allDown:function(){
-        tracer.info("所有全部处理完毕");
+    allDown:function(){
+        console.log("所有全部处理完毕");
         process.exit();
     }
 }   
 
 
-module.exports = FilterEngine;
+module.exports = new FilterEngine;
