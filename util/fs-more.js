@@ -38,16 +38,18 @@ function emptyDirSync(root){
  * unlike fs.mkdirSync, fs-more.mkdirSync will act as `mkdir -p`
  */
 function mkdirSync(dir){
-    var SPLITTER = sep,
+    var SPLITTER = path.sep,
         split = dir.split(SPLITTER),
         directory_stack = [],
-        tester;
+        tester,
+        last;
         
     while(split.length){
         tester = split.join(SPLITTER);
     
         if(!isDirectory(tester)){
-            directory_stack.push(split.pop());
+            last = split.pop();
+            last && directory_stack.push(last);
         }else{
             break;
         }
@@ -134,6 +136,8 @@ function traverseDir(root, callback, options){
  }
  */
 function copyDirSync(resource, destination, options){
+    options || (options = {});
+
     if(options.dir_mode === 'replace'){
         emptyDirSync(destination);
     }
@@ -160,6 +164,8 @@ function copyFileSync(resource, destination, options){
     var is_success = false,
         fd,
         content;
+    
+    options || (options = {});
         
     if(isFile(resource)){
         if(options.mode === 'both'){
