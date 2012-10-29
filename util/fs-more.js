@@ -92,7 +92,7 @@ function traverseDir(root, callback, options){
             callback({
                 path: current,
                 fullPath: full_path,
-                relPath: path.join(rel,current),
+                relPath: path.join(rel, current),
                 isFile: true
             });
             
@@ -102,7 +102,7 @@ function traverseDir(root, callback, options){
             param = {
                 path: current,
                 fullPath: full_path,
-                relPath: rel + current,
+                relPath: path.join(rel, current),
                 isDirectory: true
             };
         
