@@ -1,6 +1,7 @@
 var
 
 child_process = require('child_process'),
+tracer = require('tracer').colorConsole(),
 spawn = child_process.spawn;
 
 
@@ -22,12 +23,13 @@ module.exports = function(op, args, options, callback){
         });
     });
     
-    operation.stdout.on('end', function(){
+    operation.stdout.on('end', function(){ console.log('std end');
         callback(datas);
     });
     
     operation.stderr.on('data', function(data){
-        console.log('Err:', data);
+        tracer.error('Execute command: "' + op + ' ' + args.join(' ') + '" failed. Error message:', data.toString());
+        // throw 'error';
     });
     
     operation.on('exit', function(code){
