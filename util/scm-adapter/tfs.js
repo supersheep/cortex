@@ -27,6 +27,8 @@ TFS.is = function(cwd){
 
 
 TFS.prototype = {
+    // TODO:
+    // undone
     pull: function(callback){
         spawn('svn', ['update'], {
             cwd: this.cwd

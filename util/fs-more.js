@@ -2,6 +2,7 @@ var
 
 fs = require('fs'),
 path = require('path'),
+iconv = require('iconv'),
 
 REGEX_REPLACE_FILENAME = /[^\/]+$/,
 REGEX_MATCH_FILENAME_EXT = /([^\/]+?)(\.[^\/]+)?$/;
@@ -11,7 +12,9 @@ REGEX_MATCH_FILENAME_EXT = /([^\/]+?)(\.[^\/]+)?$/;
  * @param {string} path
  * @param {string|buffer} content
  */
-function writeFileSync(pathname, content){
+function writeFileSync(pathname, content, options){
+    options || (options = {});
+
     if(!REGEX_REPLACE_FILENAME.test(path)){
         return false;
     }
@@ -19,11 +22,8 @@ function writeFileSync(pathname, content){
     var dir = pathname.replace(REGEX_REPLACE_FILENAME, '');
     
     mkdirSync(dir);
-    
-    var fd = fs.openSync(pathname, 'w+');
-    
-    fs.writeSync(fd, content);
-    fs.closeSync(fd);
+
+    fs.writeFileSync(pathname, content.toString(), options.encoding || 'utf8');
 };
 
 
@@ -148,7 +148,10 @@ function copyDirSync(resource, destination, options){
             
             rel_path = info.relPath;
         
-            copyFileSync(path.join(resource, info.path), path.join(destination, info.path))
+            copyFileSync(path.join(resource, info.path), path.join(destination, info.path), {
+                mode: options.file_mode,
+                encoding: options.encoding
+            });
         }
     });
 };
@@ -171,9 +174,12 @@ function copyFileSync(resource, destination, options){
         if(options.mode === 'both'){
             destination = getUnconflictFilePathName(destination);
         }
+        
         content = fs.readFileSync(resource);
         
-        writeFileSync(destination, content);
+        writeFileSync(destination, content, {
+            encoding: options.encoding
+        });
         
         is_success = true;
     }
