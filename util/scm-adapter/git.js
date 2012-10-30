@@ -3,6 +3,8 @@
 var
 
 spawn = require('./spawn'),
+path = require('path'),
+fs_more = require('../fs-more'),
 tracer = require('tracer').colorConsole(),
 EventProxy = require('../event-proxy');
 
@@ -11,6 +13,11 @@ function Git(params){
     this.cwd = params.cwd;
     this.branch = params.branch;
     this.remote = params.remote;
+};
+
+
+Git.is = function(cwd){
+    return fs_more.isDirectory( path.join(cwd, '.git/'));
 };
 
 

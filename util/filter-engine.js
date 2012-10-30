@@ -38,10 +38,10 @@ FilterEngine.prototype = {
                             name = mod.name;
 
                         console.log(name + " " + step + " start");
-                        filter[step](function(){
+                        filter[step] ? filter[step](function(){
                             console.log(name + " " + step + " done");
                             done()
-                        });
+                        }) : done();
                     });
                 })(i);
             });
