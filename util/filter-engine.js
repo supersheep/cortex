@@ -6,11 +6,15 @@ function FilterEngine(){
     this.filter_setup = [];
     this.filter_run = [];
     this.filter_tearDown = [];
+    this.data = {}
 }
 FilterEngine.prototype = {
     assign : function(name,config){
         var Filter = require("../filters/"+name);
         var filter = Filter.create ? Filter.create(config) : Filter;
+
+        filter.env = this.data;
+
         var mod = {name:name,filter:filter};
 
 
@@ -18,7 +22,9 @@ FilterEngine.prototype = {
         this.filter_run.push(mod);
         this.filter_tearDown.push(mod);
     },
-
+    set:function(key,value){
+        this.data[key] = value;
+    },
     run:function(){
         var self = this;
         var tasks = [];
