@@ -23,7 +23,7 @@ module.exports = function(op, args, options, callback){
         });
     });
     
-    operation.stdout.on('end', function(){ console.log('std end');
+    operation.stdout.on('end', function(){
         callback(datas);
     });
     
