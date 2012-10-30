@@ -1,6 +1,7 @@
 var
 
 fs_more = require('../fs-more'),
+tracer = require('tracer').colorConsole(),
 path = require('path'),
 
 SCM_METHODS = {
@@ -15,6 +16,8 @@ function SCM(options){
     
     var type;
     
+    console.log('开始分析项目源代码管理类型...');
+    
     if(fs_more.isDirectory( path.join(this.cwd, '.git/') )){
         type = 'git'
     
@@ -22,8 +25,11 @@ function SCM(options){
         type = 'svn'
     
     }else{
-        throw 'could not detect scm type of the current project';
+        tracer.error('无法分析源代码管理类型，或类型不支持。目前仅支持 Git, SVN, TFS.');
+        throw 'error!';
     }
+    
+    console.log('判断出该项目为 Git 项目.');
     
     this.scm = new SCM_METHODS[type](options);
 };

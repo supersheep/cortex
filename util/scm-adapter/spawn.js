@@ -10,12 +10,16 @@ module.exports = function(op, args, options, callback){
 
     var
         
-    operation = spawn(op, args, options),
-    
-    datas = [];
+    datas = [],
+    operation = spawn(op, args, options);
     
     operation.stdout.on('data', function(data){
-        datas.push(data);
+        data.toString().split('\n').filter(function(line){
+            return !!line.trim();
+            
+        }).forEach(function(line){
+            datas.push(line.trim());
+        });
     });
     
     operation.stdout.on('end', function(){
@@ -28,8 +32,8 @@ module.exports = function(op, args, options, callback){
     
     operation.on('exit', function(code){
         if(code){
-            console.log(op, args, "process exited with code:", code)
-        } 
+            console.log(op, args, "process exited with code:", code);
+        }
     }); 
 };
 

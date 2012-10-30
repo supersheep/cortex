@@ -1,7 +1,9 @@
+'use strict';
+
 var
 
 spawn = require('./spawn'),
-
+tracer = require('tracer').colorConsole(),
 EventProxy = require('../event-proxy');
 
 
@@ -22,12 +24,21 @@ Git.prototype = {
     
     pull: function(callback){
         this._pull_cb = callback;
+        this._prepare();
     },
 
     _pull: function(callback){
-        spawn('git', ['pull', this.remote, this.branch], function(){
+    
+        if(this.remote){
+            spawn('git', ['pull', this.remote, this.branch], {
+                cwd: this.cwd
+                
+            }, function(){
+                callback();
+            });
+        }else{
             callback();
-        });
+        }
     },
     
     _prepare: function(){
@@ -38,6 +49,7 @@ Git.prototype = {
             self._init();
         });
         
+        
         if(!this.remote){
             ep.assign('remote');
             
@@ -47,11 +59,15 @@ Git.prototype = {
             }, function(result){
             
                 // if there's a remote address called 'origin'
-                if(
+                if(result.length === 0){
+                    console.log('该项目不包含 remote 地址，跳过获取代码过程');
+                    
+                }else if(
                     result.some(function(remote){
                         return remote[0] === 'origin';
                     })
                 ){
+                    console.log('由于未指定具体的 remote 地址，cortex 接下来会默认使用 remote origin 来获取最新代码');
                     self.remote = 'origin';
                 
                 // if there's only one remote address, use it
@@ -62,8 +78,10 @@ Git.prototype = {
                 
                     // TODO:
                     // test if `throw` will cause an stderr
-                    throw 'there is more than one remote, and no origin, please assign a specific remote';
-                    
+                    tracer.error(
+                        '该项目包含多个远程地址 (git remote -v)，并且没有 remote origin，请为项目添加 remote origin，或者为 cortex 指定 remote 地址'
+                    );
+                    throw 'error!';
                     return;
                 }
                 
@@ -71,7 +89,7 @@ Git.prototype = {
             });
         }
         
-        if(!this.branch){
+        if(!this.branch && this.remote){
             ep.assign('branch');
             
             spawn('git', ['branch'], {
@@ -85,8 +103,8 @@ Git.prototype = {
                         return branch[0] === 'master';
                     })
                 ){
+                    console.log('由于未指定具体的分支，cortex 接下来会默认使用 master 来获取最新代码');
                     self.branch = 'origin';
-                    ep.trigger('branch');
                 
                 // if there's only one branch, use it
                 }else if(result.length === 1){
@@ -96,7 +114,10 @@ Git.prototype = {
                 
                     // TODO:
                     // test if `throw` will cause an stderr
-                    throw 'there is more than one branch, and no master, please assign a specific branch';
+                    tracer.error(
+                        '该项目包含多个分支 (git branch)，并且没有 master，请为项目添加 master，或者为 cortex 指定具体的分支名'
+                    );
+                    throw 'error!';
                     
                     return;
                 }
