@@ -41,18 +41,79 @@ Git.prototype = {
         }
     },
     
-    _prepare: function(){
-        var
+    _checkBranch: function(callback){
+        var self = this;
+    
+        // always check branches 
+        spawn('git', ['branch'], {
+            cwd: this.cwd
         
-        self = this,
-        ep = new EventProxy(function(){
-            self._init();
-        });
-        
-        
-        if(!this.remote){
-            ep.assign('remote');
+        }, function(result){
+            var current;
             
+            result.forEach(function(branch, index){
+                var split = branch.split(' ');
+                
+                if(split.length === 2 && split[0] === '*'){
+                    current = result[index] = split[1];
+                }
+            });
+            
+            if(!self.branch){
+                // if there's a branch address called 'master'
+                if(
+                    result.some(function(branch){
+                        return branch === 'master';
+                    })
+                ){
+                    console.log('由于未指定具体的分支，cortex 接下来会默认使用 master 来获取最新代码');
+                    self.branch = 'master';
+                
+                // if there's only one branch, use it
+                }else if(result.length === 1){
+                    self.branch = result[0][0];
+                
+                }else{
+                
+                    // TODO:
+                    // test if `throw` will cause an stderr
+                    tracer.error(
+                        '该项目包含多个分支 (git branch)，并且没有 master，请为项目添加 master，或者为 cortex 指定具体的分支名'
+                    );
+                    throw 'error!';
+                    
+                    return;
+                }
+            }
+        
+            if(self.branch){
+                if(result.indexOf(self.branch) === -1){
+                    tracer.error('该项目中不包含分支 ' + self.branch + '，请检查调用 cortex 的参数');
+                    throw 'error';
+                
+                }else if(self.branch !== current){
+                
+                    console.log('切换项目分支到 ' + self.branch);
+                    spawn('git', ['checkout', self.branch], {
+                        cwd: self.cwd
+                    
+                    }, function(){
+                        callback();
+                    });
+                
+                }else{
+                    callback();
+                }
+                
+            }
+        });
+    },
+    
+    _checkRemote: function(callback){
+        var self = this;
+    
+        if(!this.remote){
+        
             spawn('git', ['remote', '-v'], {
                 cwd: this.cwd
                 
@@ -85,47 +146,31 @@ Git.prototype = {
                     return;
                 }
                 
+                callback();
+            });
+        
+        }else{
+            callback();    
+        }
+    },
+    
+    _prepare: function(){
+        var
+        
+        self = this,
+        ep = new EventProxy(function(){
+            self._init();
+        });
+        
+        ep.assign(['remote', 'branch']);
+        
+        this._checkBranch(function(){
+            self._checkRemote(function(){
                 ep.trigger('remote');
             });
-        }
-        
-        if(!this.branch && this.remote){
-            ep.assign('branch');
             
-            spawn('git', ['branch'], {
-                cwd: this.cwd
-            
-            }, function(result){
-                
-                // if there's a branch address called 'master'
-                if(
-                    result.some(function(branch){
-                        return branch[0] === 'master';
-                    })
-                ){
-                    console.log('由于未指定具体的分支，cortex 接下来会默认使用 master 来获取最新代码');
-                    self.branch = 'origin';
-                
-                // if there's only one branch, use it
-                }else if(result.length === 1){
-                    self.branch = result[0][0];
-                
-                }else{
-                
-                    // TODO:
-                    // test if `throw` will cause an stderr
-                    tracer.error(
-                        '该项目包含多个分支 (git branch)，并且没有 master，请为项目添加 master，或者为 cortex 指定具体的分支名'
-                    );
-                    throw 'error!';
-                    
-                    return;
-                }
-                
-                ep.trigger('branch');
-            });
-        }
-
+            ep.trigger('branch');
+        });
     }
 }
 
