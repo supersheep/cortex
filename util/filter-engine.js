@@ -11,7 +11,9 @@ function FilterEngine(){
 FilterEngine.prototype = {
     assign : function(name,config){
         var Filter = require("../filters/"+name);
+
         var filter = Filter.create ? Filter.create(config) : Filter;
+        console.log(filter,name);
 
         filter.env = this.data;
 
@@ -21,9 +23,6 @@ FilterEngine.prototype = {
         this.filter_setup.push(mod);
         this.filter_run.push(mod);
         this.filter_tearDown.push(mod);
-    },
-    set:function(key,value){
-        this.data[key] = value;
     },
     run:function(){
         var self = this;
