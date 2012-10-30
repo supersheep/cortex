@@ -19,62 +19,33 @@ FilterEngine.prototype = {
         this.filter_tearDown.push(mod);
     },
 
-    start:function(){
-        this._run("setup");
-    },
-
     run:function(){
-        this._run("run");
-    },
-
-    tearDown:function(){
-        this._run("tearDown");
-    },
-
-    _run:function(step){
         var self = this;
+        var tasks = [];
 
-        self["filter_"+step].forEach(function(mod,i){
+        for(var i = 0 ; i < this.filter_setup.length;i++){
 
-            var filter = mod.filter;
-            /**
-             * @type {Object} status {
-                     passed: {boolean}
-                     msg: {string}
-                 }
-             */      
-            
-            if(filter[step]){
-                filter[step](function(err){
-                    if(err){
-                         throw new Error(err);
-                     }else{
-                         self._done(mod.name,step);
-                    }
-                });
-            }else{
-                self._done(mod.name,step);
-            }
+            ["setup","run","tearDown"].forEach(function(step){
+                (function(j){
+                    tasks.push(function(done){
+                        var mod = self["filter_" + step][j],
+                            filter = mod.filter,
+                            name = mod.name;
+
+                        console.log(name + " " + step + " start");
+                        filter[step](function(){
+                            console.log(name + " " + step + " done");
+                            done()
+                        });
+                    });
+                })(i);
+            });
+        }
+
+        async.series(tasks,function(){
+            self.allDown();
         });
     },
-    _done: function(name,step){
-
-        console.log("filterEngine:%s.%s done",name,step);
-        var steps = this["filter_"+step];
-
-        var index = steps.indexOf(name);
-        steps.splice(name);
-        if(steps.length == 0){
-            if(step == "setup"){
-                this.run();
-            }else if(step == "run"){
-                this.tearDown();
-            }else if(step == "tearDown"){
-                this.allDown();
-            }
-        }
-    },
-    
     allDown:function(){
         console.log("所有全部处理完毕");
         process.exit();
