@@ -1,14 +1,10 @@
 var
 
+ORDERED_SCM_METHODS = ['git', 'svn'/* , 'tfs' */],
+
 fs_more = require('../fs-more'),
 tracer = require('tracer').colorConsole(),
-path = require('path'),
-
-SCM_METHODS = {
-    git: require('./git'),
-    // tfs: require('./tfs'),
-    svn: require('./svn')
-};
+path = require('path');
 
 
 function SCM(options){
@@ -18,20 +14,29 @@ function SCM(options){
     
     console.log('开始分析项目源代码管理类型...');
     
-    if(fs_more.isDirectory( path.join(this.cwd, '.git/') )){
-        type = 'git'
+    var
     
-    }else if(fs_more.isDirectory( path.join(this.cwd, '.svn/') )){
-        type = 'svn'
+    i = 0,
+    len = ORDERED_SCM_METHODS.length,
+    scm_type,
+    scm;
     
-    }else{
+    for(; i < len; i ++){
+        scm_type = ORDERED_SCM_METHODS[i];
+        scm = require('./' + scm_type);
+        
+        if(scm.is(this.cwd)){
+            console.log('判断出该项目为 ' + scm_type + ' 项目');
+            type = scm_type;
+            this.scm = new scm(options);
+            break;
+        }
+    }
+    
+    if(!type){
         tracer.error('无法分析源代码管理类型，或类型不支持。目前仅支持 Git, SVN, TFS.');
         throw 'error!';
     }
-    
-    console.log('判断出该项目为 Git 项目.');
-    
-    this.scm = new SCM_METHODS[type](options);
 };
 
 
