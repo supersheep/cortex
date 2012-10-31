@@ -59,7 +59,7 @@ Git.prototype = {
             var current;
             
             result.forEach(function(branch, index){
-                var split = branch.split(' ');
+                var split = branch[0].split(' ');
                 
                 if(split.length === 2 && split[0] === '*'){
                     current = result[index] = split[1];

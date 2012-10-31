@@ -15,11 +15,11 @@ module.exports = function(op, args, options, callback){
     operation = spawn(op, args, options);
     
     operation.stdout.on('data', function(data){
-        data.toString().split('\n').filter(function(line){
+        data.toString().split(/\n|\r\n/).filter(function(line){
             return !!line.trim();
             
         }).forEach(function(line){
-            datas.push(line.trim());
+            datas.push(line.trim().split(/\t/));
         });
     });
     
