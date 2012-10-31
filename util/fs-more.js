@@ -76,6 +76,12 @@ function mkdirSync(dir){
 
  * @param {Object} options {
     upwards: {boolean=} default to downwards
+        lib/
+            a/
+                a.js    
+        downwards: a/ -> a.js
+        upwards: a.js -> a/
+         
     rel: {string=} default to ''
   }
  */
@@ -148,10 +154,11 @@ function copyDirSync(resource, destination, options){
             
             rel_path = info.relPath;
         
-            copyFileSync(path.join(resource, info.path), path.join(destination, info.path), {
+            copyFileSync(path.join(resource, rel_path), path.join(destination, rel_path), {
                 mode: options.file_mode,
                 encoding: options.encoding
             });
+            
         }
     });
 };
