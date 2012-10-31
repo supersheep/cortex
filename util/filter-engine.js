@@ -13,7 +13,6 @@ FilterEngine.prototype = {
         var Filter = require("../filters/"+name);
 
         var filter = Filter.create ? Filter.create(config) : Filter;
-        console.log(filter,name);
 
         filter.env = this.data;
 
@@ -27,7 +26,7 @@ FilterEngine.prototype = {
     run:function(){
         var self = this;
         var tasks = [];
-
+        console.log("aaa");
         for(var i = 0 ; i < this.filter_setup.length;i++){
 
             ["setup","run","tearDown"].forEach(function(step){
