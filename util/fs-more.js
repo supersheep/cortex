@@ -2,7 +2,7 @@ var
 
 fs = require('fs'),
 path = require('path'),
-iconv = require('iconv'),
+// iconv = require('iconv'),
 
 REGEX_REPLACE_FILENAME = /[^\/]+$/,
 REGEX_MATCH_FILENAME_EXT = /([^\/]+?)(\.[^\/]+)?$/;
