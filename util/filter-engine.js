@@ -37,9 +37,9 @@ FilterEngine.prototype = {
                             name = mod.name;
 
                         console.log(name + " " + step + " start");
-                        filter[step] ? filter[step](function(){
+                        filter[step] ? filter[step](function(e){
                             console.log(name + " " + step + " done");
-                            done()
+                            done(e)
                         }) : done();
                     });
                 })(i);
