@@ -52,6 +52,7 @@ FilterEngine.prototype = {
     },
     allDown:function(){
         console.log("所有全部处理完毕");
+        console.log("ALL PROCESS IS FINISHED");
         process.exit();
     }
 }   
