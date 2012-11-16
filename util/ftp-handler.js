@@ -1,3 +1,5 @@
+"use strict";
+
 var 
 
 fsmore = require('./fs-more'),
@@ -23,7 +25,7 @@ function traverseUpload(localDir, remoteDir, cb){
                 process.stdout.write("done".green+"\r\n");
             }
             done();
-        })
+        });
     });
 
     fsmore.traverseDir(localDir,function(info){
@@ -61,13 +63,20 @@ function traverseUpload(localDir, remoteDir, cb){
     });
 
     async.series(tasks,cb);
-}
- 
+};
+
+/**
+ * @param {Object} options {
+        username: {string}
+        password: {string}
+        remoteDir: {string}
+        localDir: {string}
+    }
+ */
 function upload(options, callback){
     conn.removeAllListeners('connect');
     conn.on('connect', function() {
-        // authenticate as anonymous
-        console.log("connecting ftp");
+    
         conn.auth(options.username,options.password,function(e) {
             if (e){
                 throw e;
@@ -78,7 +87,6 @@ function upload(options, callback){
                     console.log(e);
                 }
                 
-                console.log("upload finished");
                 callback();
                 conn.end();
             });
@@ -91,57 +99,62 @@ function upload(options, callback){
 
 function traverseDownload(remoteDir, localDir, callback){
     fsmore.mkdirSync(localDir);
+    
+    // default to root dir
+    remoteDir = remoteDir || '/';
 
     var tasks = [];
 
-    conn.list(function(e, entries) {
+    conn.list(remoteDir, function(e, entries) {
         if(e){
             throw e;
         }
-    
-        var i = 0, 
-            len = entries.length,
+
+        var i = 0, len = entries.length,
             entry;
         
         for (; i < len; ++i) {
-            entry = entries[1];
-        
+            entry = entries[i];
         
             if (typeof entry === 'string'){
-                console.log('<raw entry>: ' + entries[i]);
+                // console.log('<raw entry>: ' + entries[i]);
             
             } else {
                 if(entry.type === '-'){
-                
-                    tasks.push(function(done){
-                        downloadFile(path.join(remoteDir, entry.name), path.join(localDir, entry.name), function(e, stream, data){
-                            stream.on('success', function() {
-                                done();
-                            });
-                        
-                            stream.on('error', function(e) {
-                                conn.end();
-                                throw e;
-                            });
+                    (function(entry){
+                        tasks.push(function(done){
+                            downloadFile(path.join(remoteDir, entry.name), path.join(localDir, entry.name), function(e, stream, data){
+                                stream.on('success', function() {
+                                    done();
+                                });
                             
-                            stream.pipe(fs.createWriteStream(data.localName));
+                                stream.on('error', function(e) {
+                                    conn.end();
+                                    throw e;
+                                });
+                                
+                                stream.pipe(fs.createWriteStream(data.localName));
+                            });
                         });
-                    });
+                    })(entry);
                 
-                }else if(entry.type === 'd'){
-                    tasks.push(function(done){
-                        traverseDownload(path.join(remoteDir, entry.name), path.join(remoteDir, entry.name), function(){
-                            done();
-                        }); 
-                    });
+                }else if(entry.type === 'd' && entry.name !== '..' && entry.name !== '.'){
                     
+                    (function(entry){
+                        tasks.push(function(done){
+                            traverseDownload(path.join(remoteDir, entry.name), path.join(localDir, entry.name), function(){
+                                done();
+                            }); 
+                        });
+                        
+                    })(entry);
                 }
             }
         }
         
         async.series(tasks, callback);
     });
-});
+};
 
 
 function downloadFile(remoteName, localName, callback){
@@ -153,11 +166,18 @@ function downloadFile(remoteName, localName, callback){
 };
 
 
+/**
+ * @param {Object} options {
+        username: {string}
+        password: {string}
+        remoteDir: {string}
+        localDir: {string}
+    }
+ */
 function download(options, callback){
-    conn.removeAllListners('connect');
+    conn.removeAllListeners('connect');
     conn.on('connect', function(){
-        conosle.log()
-        
+
         conn.auth(options.username, options.password, function(e){
             if(e){
                 throw e;
