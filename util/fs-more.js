@@ -1,3 +1,5 @@
+"use strict";
+
 var
 
 fs = require('fs'),
@@ -38,27 +40,25 @@ function emptyDirSync(root){
  * unlike fs.mkdirSync, fs-more.mkdirSync will act as `mkdir -p`
  */
 function mkdirSync(dir){
-    var SPLITTER = path.sep,
-        split = dir.split(SPLITTER),
-        directory_stack = [],
-        tester,
-        last;
+    if(!isDirectory(dir)){
+        var SPLITTER = path.sep,
+            splits = dir.split(SPLITTER),
+            directory_stack = [],
+            last,
+            pop;
         
-    while(split.length){
-        tester = split.join(SPLITTER);
-    
-        if(!isDirectory(tester)){
-            last = split.pop();
-            last && directory_stack.push(last);
-        }else{
-            break;
+        do{
+            // last must not be a directory, so pop first
+            pop = splits.pop();
+            
+            pop && directory_stack.push(pop);
+            
+        }while(splits.length && !isDirectory(last = splits.join(SPLITTER)));
+        
+        while(directory_stack.length){
+            last = path.join(last, directory_stack.pop());
+            fs.mkdirSync(last);
         }
-    }
-    
-    dir = tester;
-    
-    while(directory_stack.length){
-        fs.mkdirSync(dir = path.join(dir, directory_stack.pop()));
     }
 };
 

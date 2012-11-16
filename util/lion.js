@@ -1,5 +1,4 @@
 var request = require("request");
-var config = require("../config");
 
 function get(opt,callback){
 	var key = opt.key,
