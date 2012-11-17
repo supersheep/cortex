@@ -36,17 +36,18 @@ FilterEngine.prototype = {
                             filter = mod.filter,
                             name = mod.name;
 
-                        console.log(name + " " + step + " start");
                         filter[step] ? filter[step](function(e){
-                            console.log(name + " " + step + " done");
-                            done(e)
+                                done(e);  
                         }) : done();
                     });
                 })(i);
             });
         }
 
-        async.series(tasks,function(){
+        async.series(tasks,function(e){
+						if(e){
+							throw e;return;
+						}
             self.allDown();
         });
     },
