@@ -98,3 +98,67 @@ exports.isWindow = function(obj){
 // exports.isNaN = function(obj){
 //	return obj == null || !/\d/.test( obj ) || isNaN( obj );
 // };
+
+
+
+/**
+ * copy all properties in the supplier to the receiver
+ * @param r {Object} receiver
+ * @param s {Object} supplier
+ * @param or {boolean=} whether override the existing property in the receiver
+ * @param cl {(Array.<string>)=} copy list, an array of selected properties
+ */
+exports.mix = function(r, s, or, cl) {
+    if (!s || !r) return r;
+    var i = 0, c, len;
+    or = or || or === undef;
+
+    if (cl && (len = cl.length)) {
+        for (; i < len; i++) {
+            c = cl[i];
+            if ( (c in s) && (or || !(c in r) ) ) {
+                r[c] = s[c];
+            }
+        }
+    } else {
+        for (c in s) {
+            if (or || !(c in r)) {
+                r[c] = s[c];
+            }
+        }
+    }
+    return r;
+};
+
+
+exports.merge = function(r, s, or){
+    if(!s || !r){
+        return r;
+    }
+
+    var key, ri, si;
+    
+    or = or || or === undef;
+    
+    for(key in s){
+        ri = r[key];
+        si = s[key];
+        
+        // if both object, merge them
+        if(Object(ri) === ri && Object(si) === si){
+            exports.merge(ri, si, or);
+            
+        }else{
+            if(or || !(key in r)){
+                r[key] = si;
+            }
+        }
+    }
+    
+    // always override array length
+    if(s.length && r.length){
+        r.length = s.length;
+    }
+    
+    return r;
+};
