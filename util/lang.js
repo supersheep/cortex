@@ -131,7 +131,7 @@ exports.mix = function(r, s, or, cl) {
 };
 
 
-exports.merge = function(r, s, or){
+exports.merge = function(r, s, or, strict){
     if(!s || !r){
         return r;
     }
@@ -149,7 +149,9 @@ exports.merge = function(r, s, or){
             exports.merge(ri, si, or);
             
         }else{
-            if(or || !(key in r)){
+            if(or || 
+                (strict ? !(key in r) : ri === undef )
+            ){
                 r[key] = si;
             }
         }
