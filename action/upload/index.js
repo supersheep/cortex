@@ -230,10 +230,10 @@ lang.mix(Upload.prototype, {
                 }
              }
              */
-            configFile: '.cortex/upload.json',
+            file: '.cortex/upload.json',
             env: o.env
             
-        }).getConfig({ftpConf: {}});
+        }).getConf({ftpConf: {}});
         
         o.fromFTP = this._parseFTPUri(o.from);
         o.toFTP = this._parseFTPUri(o.to);
