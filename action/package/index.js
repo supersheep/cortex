@@ -61,7 +61,8 @@ Package.prototype.run = function() {
     new ConfigHandler({
         file: '.cortex/package.json',
         cwd: cwd,
-        env: options.env
+        env: options.env,
+        excludes: ['cwd', 'remote', 'env']
     
     }).getConf(options);
 
