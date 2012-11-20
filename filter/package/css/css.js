@@ -1,10 +1,11 @@
-var CssParser = require("./cssparser"),
-	config = require("../../config"),
-	fsMore = require("../../util/fs-more"),
-	db = require("../../db"),
-    lion = require("../../util/lion"),
-    EventProxy = require("../../util/event-proxy"),
-	path_mod = require("path");
+var
+
+CssParser   = require("./cssparser"),
+fsMore      = require("../../../util/fs-more"),
+db          = require("../../../util/db"),
+lion        = require("../../../util/lion"),
+EventProxy  = require("../../../util/event-proxy"),
+path_mod    = require("path");
 
 
 /*

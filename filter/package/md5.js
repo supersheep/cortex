@@ -1,4 +1,4 @@
-var fsMore = require("../util/fs-more"),
+var fsMore = require("../../util/fs-more"),
     fs = require("fs"),
     md5 = require("MD5"),
     child_process = require("child_process"),

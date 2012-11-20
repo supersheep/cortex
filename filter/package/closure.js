@@ -1,4 +1,4 @@
-var fsMore = require("../util/fs-more"),
+var fsMore = require("../../util/fs-more"),
     async = require("async"),
     fs = require("fs"),
     child_process = require("child_process"),

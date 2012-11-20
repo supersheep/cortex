@@ -1,7 +1,7 @@
 var 
 
 
-SCM = require('../util/scm-adapter');
+SCM = require('../../lib/scm-adapter');
 
 
 function Update(options){

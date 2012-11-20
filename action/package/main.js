@@ -1,12 +1,11 @@
 var 
 
-tracer = require("tracer").colorConsole(),
 fsMore = require("../../util/fs-more"),
 pathmod = require("path"),
 EventProxy = require("../../util/event-proxy"),
-filterEngine = require("../../lib/filter-engine");
+FilterEngine = require("../../lib/filter-engine");
 
-filterEngine = new FilterEngine('../../filter/package/');
+filterEngine = new FilterEngine('../filter/package/');
 
 
 // 主流程

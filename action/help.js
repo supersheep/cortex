@@ -1,8 +1,18 @@
-var fs = require("fs");
+var
 
-var Actions = fs.readdirSync(__dirname).filter(function(name){return name!="help.js"});
-var ActionFactory = require("../lib/action-factory");
-var util = require("util");
+fs = require("fs"),
+path = require("path"),
+
+REGEX_IS_JS = /\.js$/i,
+
+
+Actions = fs.readdirSync(__dirname).filter(function(name){
+    return name !== "help.js" && REGEX_IS_JS.test(name) || fs.statSync(path.join(__dirname, name)).isDirectory();
+}),
+    
+ActionFactory = require("../lib/action-factory"),
+util = require("util");
+
 
 Help = ActionFactory.create("Help");
 
@@ -27,7 +37,7 @@ Help.prototype.run = function(){
 }
 
 function getHelp(action,verbose){
-    var name = action._name,
+    var name = action.NAME,
         msg;
         
     if(name == "Help"){

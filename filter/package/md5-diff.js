@@ -12,7 +12,7 @@ CONFIG_DIR = '.cortex',
 CONFIG_FILE = 'publish.json',
 
 fs = require('fs'),
-fs_more = require('../util/fs-more'),
+fs_more = require('../../util/fs-more'),
 tracer = require("tracer").colorConsole(),
 path = require('path');
 

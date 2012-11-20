@@ -22,7 +22,7 @@ var
 
 fs = require('fs'),
 tracer = require("tracer").colorConsole(),
-fs_more = require('../util/fs-more'),
+fs_more = require('../../util/fs-more'),
 path = require('path'),
 CORTEX_DIR = '.cortex',
 CONFIG_FILE = 'publish.json';
