@@ -1,5 +1,5 @@
-var ActionFactory = require("./action-factory");
-var main = require("../main");
+var ActionFactory = require("../../lib/action-factory");
+var main = require("./main");
 var path = require("path");
 
 var Package = ActionFactory.create("Package");
