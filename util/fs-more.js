@@ -86,6 +86,10 @@ function mkdirSync(dir){
   }
  */
 function traverseDir(root, callback, options){
+    if(!isDirectory(root)){
+        return;
+    }
+
     options || (options = {});
 
     var dir_content = fs.readdirSync(root),
