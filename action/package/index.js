@@ -1,8 +1,11 @@
-var ActionFactory = require("../../lib/action-factory");
-var main = require("./main");
-var path = require("path");
+var 
 
-var Package = ActionFactory.create("Package");
+ActionFactory = require("../../lib/action-factory"),
+ConfigHandler = require("../../lib/config-handler"),
+main = require("./main"),
+path = require("path"),
+Package = ActionFactory.create("Package");
+
 
 Package.AVAILIABLE_OPTIONS = {
     filters:{
@@ -54,6 +57,11 @@ Package.prototype.run = function() {
     }
     
     options.cwd = cwd;
+    
+    var CH = new ConfigHandler({
+        file:  
+    });
+    
 
     main(options);
 };
