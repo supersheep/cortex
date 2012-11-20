@@ -135,6 +135,10 @@ exports.merge = function(r, s, or, strict){
     if(!s || !r){
         return r;
     }
+    
+    if(exports.isArray(r) && exports.isArray(s)){
+        return exports.pushUnique(r, s);
+    }
 
     var key, ri, si;
     
@@ -164,3 +168,41 @@ exports.merge = function(r, s, or, strict){
     
     return r;
 };
+
+
+exports.pushUnique = function(append, array){
+    if(Object.prototype.toString.call(array) !== '[object Array]'){
+        array = [array];
+    }
+
+    var push = Array.prototype.push,
+        length = array.length,
+        j, k,
+        append_length,
+        unique,
+        member;
+                
+    for(k = 0; k < length; k ++){
+        // append.length is ever changing
+        append_length = append.length;
+        member = array[k];
+        unique = true;
+        
+        for(j = 0; j < append_length; j ++){
+            if(member === append[j]){
+                unique = false;
+                break;
+            }
+        }
+        
+        // make sure, all found members are unique
+        if(unique){
+        
+            // use `push.call(append, member)` instead of `append.push(member)`
+            // append might be array-like objects
+            push.call(append, member);
+        }
+    }
+    
+    return append;
+};;
