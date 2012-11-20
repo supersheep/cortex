@@ -59,7 +59,7 @@ ClosureTraverser.prototype = {
 
     setup:function(done){
         this.root = this.env.build_dir;
-        this.project_base = path_mod.join(__dirname,"..");
+        this.project_base = path_mod.join(__dirname,"..","..");
         done();
     },
 
@@ -79,7 +79,7 @@ ClosureTraverser.prototype = {
 
             if(info.isFile && self._isJs(relpath) && self._isNotMin(relpath)){
                 tasks.push(function(done){
-                    var dir = path_mod.join(self.project_base,'tools','closure','compiler.jar');
+                    var dir = path_mod.join(self.project_base,'tool','closure','compiler.jar');
                         path = info.fullPath,
                         minpath = self._makeMinPath(path);
 

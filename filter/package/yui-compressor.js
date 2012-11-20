@@ -3,7 +3,7 @@ var fsMore = require("../../util/fs-more"),
     fs = require("fs"),
     md5 = require("MD5"),
     child_process = require("child_process"),
-	path_mod = require("path");
+    path_mod = require("path");
 
 
 /*
@@ -54,7 +54,7 @@ YUITraverser.prototype = {
 
     setup:function(done){
         this.root = this.env.build_dir; //config.cwd;
-        this.project_base = path_mod.join(__dirname,"..");
+        this.project_base = path_mod.join(__dirname,"..","..");
         done();
     },
 
@@ -74,7 +74,7 @@ YUITraverser.prototype = {
             
             if(info.isFile && self._isCss(relpath) && self._isNotMin(relpath)){
                 tasks.push(function(done){
-                    var dir = path_mod.join(self.project_base,'tools','yui-compressor','yuicompressor-2.4.7.jar');
+                    var dir = path_mod.join(self.project_base,'tool','yui-compressor','yuicompressor-2.4.7.jar');
                         path = info.fullPath,
                         minpath = self._makeMinPath(path);
 
