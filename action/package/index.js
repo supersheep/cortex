@@ -38,23 +38,24 @@ Package.AVAILIABLE_OPTIONS = {
 
 
 Package.prototype.run = function() {
-    var opts = this.options,
-        mods = this.modules,
-        root = mods[0];
+    var options = this.options,
+        cwd = options.cwd;
         
     // always generate an absolute dir
-    if(root){
+    if(cwd){
         // if is relative directory
-        if(root.indexOf('..') === 0 || root.indexOf('.') === 0){
-            root = path.join(process.cwd(), root);
+        if(cwd.indexOf('..') === 0 || cwd.indexOf('.') === 0){
+            cwd = path.join(process.cwd(), cwd);
         }
     
     // if no root specified, use current working directory
     }else{
-        root = process.cwd();
+        cwd = process.cwd();
     }
+    
+    options.cwd = cwd;
 
-    main(root, opts);
+    main(options);
 };
 
 

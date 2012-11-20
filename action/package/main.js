@@ -1,14 +1,18 @@
 
-var tracer = require("tracer").colorConsole(),
-    fsMore = require("./util/fs-more"),
-    pathmod = require("path"),
-    EventProxy = require("./util/event-proxy"),
-    filterEngine = require("./util/filter-engine");
+var 
+
+tracer = require("tracer").colorConsole(),
+fsMore = require("./util/fs-more"),
+pathmod = require("path"),
+EventProxy = require("./util/event-proxy"),
+FilterEngine = require("./util/filter-engine"),
+
+filterEngine = new FilterEngine('../../filter/package/');
 
 
 // 主流程
 // @param {string} root absolute path of working directory of target project
-function main(root, options){
+function main(options){
     options.filters = options.filters && options.filters.split(',') || [
         'update',
         'publish-imitate',
@@ -18,8 +22,6 @@ function main(root, options){
         'md5',
         'md5-diff'
     ];
-    
-    options.cwd = options.cwd || root;
     
     console.log("开始应用已配置的滤镜 >>>>>>>>>>");
     
