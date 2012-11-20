@@ -1,14 +1,14 @@
 "use strict";
 
-var ActionFactory = require("./action-factory");
-var db = require("../util/db");
-var ftp_handler = require("../util/ftp-handler");
-var ConfigHandler = require("../util/config-handler");
-var fsmore = require("../util/fs-more")
+var ActionFactory = require("../../lib/action-factory");
+var db = require("../../util/db");
+var ftp_handler = require("../../lib/ftp-handler");
+var ConfigHandler = require("../../lib/config-handler");
+var fsmore = require("../../util/fs-more")
 var async = require("async");
 var fs = require("fs");
 var path = require("path");
-var lang = require("../util/lang");
+var lang = require("../../util/lang");
 
 /**
  regular expression for ftp uri

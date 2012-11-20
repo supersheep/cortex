@@ -1,5 +1,7 @@
-var Actions = require("../actions.json");
-var ActionFactory = require("./action-factory");
+var fs = require("fs");
+
+var Actions = fs.readdirSync(__dirname).filter(function(name){return name!="help.js"});
+var ActionFactory = require("../lib/action-factory");
 var util = require("util");
 
 Help = ActionFactory.create("Help");
@@ -9,21 +11,18 @@ Help.prototype.run = function(){
 
     var mods = this.modules;
     var mod;
-    if(!mods.length){
+    var modname = mods[0];
+    var msg;
+
+    if(!modname){
         Actions.forEach(function(name){
-            var msg = getHelp(ctx[name]);
+            var msg = getHelp(require("./" + name));
             msg && console.log(msg);
         });
-        
     }else{
-        mod = ctx[mods[0]];
-
-        if(!mod){
-            console.log("unknown action: "+mods[0]);
-        }else{
-            msg = getHelp(mod,true);
-            msg && console.log(msg);
-        }
+        mod = require("./" + modname);
+        msg = getHelp(mod,true);
+        msg && console.log(msg);
     }
 }
 

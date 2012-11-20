@@ -1,9 +1,9 @@
 
 var tracer = require("tracer").colorConsole(),
-    fsMore = require("./util/fs-more"),
+    fsMore = require("../../util/fs-more"),
     pathmod = require("path"),
-    EventProxy = require("./util/event-proxy"),
-    filterEngine = require("./util/filter-engine");
+    EventProxy = require("../../util/event-proxy"),
+    filterEngine = require("../../lib/filter-engine");
 
 
 // 主流程
