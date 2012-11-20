@@ -58,10 +58,12 @@ Package.prototype.run = function() {
     
     options.cwd = cwd;
     
-    var CH = new ConfigHandler({
-        file:  
-    });
+    new ConfigHandler({
+        file: '.cortex/package.json',
+        cwd: cwd,
+        env: options.env
     
+    }).getConf(options);
 
     main(options);
 };
