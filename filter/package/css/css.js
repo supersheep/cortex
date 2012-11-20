@@ -14,11 +14,9 @@ var base_dir = path_mod.join(__dirname,'..','res'), // 准备分析的目录
  */
 
 
-function CssTraverser(config){
-    console.log(config);
+function CssTraverser(options){
+    this.options = options;
     this.data = {};
-    this.enviroment = config.env;
-    this.lionhost = config.lionhost;
 }
 
 
@@ -53,8 +51,8 @@ CssTraverser.prototype = {
 
         lion.get({
                 key:"dp-common-web.imgResourceServer",
-                host:this.lionhost,
-                env:this.enviroment
+                host:this.options.lionhost,
+                env:this.options.env
             },function(err,data){
             err && done(err);
             try{
