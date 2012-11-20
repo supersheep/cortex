@@ -10,41 +10,6 @@ var fs = require("fs");
 var path = require("path");
 var lang = require("../../util/lang");
 
-/**
- regular expression for ftp uri
-
-/
-    ^
-    ftp:\/\/
-    (?:
-        # 1: user 
-        ([^:]+)
-        :
-        # 2: password
-        ([^@]+)?
-        @
-    )?
-    # 3: ip
-    (
-        (?:(?:2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}
-        2[0-4]\d|25[0-5]|[01]?\d\d?
-    )
-    (?:
-        : 
-        # 4: port
-        ([0-9]{2,5})
-    )?
-    
-    # 5: dir
-    (\/.*)?
-    
-    $
-/i
-
-*/
-
-var REGEX_MATCHER_FTP_URI = /^ftp:\/\/(?:([^:]+):([^@]+)@)?((?:(?:2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}2[0-4]\d|25[0-5]|[01]?\d\d?)(?::([0-9]{2,5}))?(\/.*)?$/i;
-
 
 var 
 

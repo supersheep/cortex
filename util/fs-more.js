@@ -7,7 +7,12 @@ path = require('path'),
 // iconv = require('iconv'),
 
 REGEX_REPLACE_FILENAME = /[^\/]+$/,
-REGEX_MATCH_FILENAME_EXT = /([^\/]+?)(\.[^\/]+)?$/;
+REGEX_MATCH_FILENAME_EXT = /([^\/]+?)(\.[^\/]+)?$/,
+
+REGEX_REPLACE_LEADING_TILDE = /^~/,
+REGEX_IS_NODE_REQUIRE_PATH = /^(?:\.\/|\.\.\/|~\/|\/)/,
+
+HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 
 
 /**
@@ -30,9 +35,13 @@ function writeFileSync(pathname, content, options){
 
 
 function emptyDirSync(root){
-    traverseDir(root, function(info){
-        info.isFile ? fs.unlinkSync(info.fullPath) : fs.rmdirSync(info.fullPath);
-    }, true);
+    traverseDir(
+        root, 
+        function(info){
+            info.isFile ? fs.unlinkSync(info.fullPath) : fs.rmdirSync(info.fullPath);
+        }, {
+            upwards: true
+        });
 };
 
 
@@ -231,7 +240,20 @@ function isFile(file){
 
 function isDirectory(file){
     return fs.existsSync(file) && fs.statSync(file).isDirectory();
-}; 
+};
+
+
+function stdPath(pathname){
+    // '~/xxx' -> '/User/<myprofile>/'
+    pathname = pathname.replace(REGEX_REPLACE_LEADING_TILDE, HOME);
+    
+    // 'xxx' -> './xxx'
+    if(!REGEX_IS_NODE_REQUIRE_PATH.test(pathname)){
+        pathname = '.' + path.sep + pathname;
+    }
+    
+    return pathname;
+};
 
 
 module.exports = {
@@ -242,6 +264,7 @@ module.exports = {
     emptyDirSync    : emptyDirSync,
     mkdirSync       : mkdirSync,
     isFile          : isFile,
-    isDirectory     : isDirectory
+    isDirectory     : isDirectory,
+    stdPath         : stdPath
 };
 

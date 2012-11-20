@@ -2,9 +2,7 @@ var
 
 fsMore = require("../../util/fs-more"),
 pathmod = require("path"),
-EventProxy = require("../../util/event-proxy"),
-FilterEngine = require("../../lib/filter-engine");
-
+FilterEngine = require("../../lib/filter-engine"),
 filterEngine = new FilterEngine('../filter/package/');
 
 
