@@ -3,7 +3,7 @@ var request = require("request");
 function get(opt,callback){
 	var key = opt.key,
 	env = opt.env,
-	host = opt.pattern,
+	pattern = opt.pattern,
 	url = pattern.replace("{env}",env).replace("{key}",key);
 
 	if(["alpha","qa","pro"].indexOf(env) == -1){
