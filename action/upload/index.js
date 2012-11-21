@@ -35,6 +35,11 @@ var
 
 REGEX_MATCHER_FTP_URI = /^ftp:\/\/(?:([^:]+):([^@]+)@)?((?:(?:2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(?:2[0-4]\d|25[0-5]|[01]?\d\d?))(?::([0-9]{2,5}))?(\/.*)?$/i,
 
+CORTEX_INFO_DIR = '.cortex/',
+
+fs = require('fs'),
+fsmore = require('../../util/fs-more'),
+path = require('path'),
 lang = require('../../util/lang'),
 ActionFactory = require('../../lib/action-factory'),
 ConfigHandler = require('../../lib/config-handler'),
@@ -61,6 +66,12 @@ Upload.AVAILIABLE_OPTIONS = {
         alias: ["-e", "--env"],
         length: 1,
         description: "指定发布的环境（可选）。对一个名为 <config>.json 的配置文件，cortex 会尝试读取 <config>.<env>.json 的文件。对于点评来说，可选的参数有 'alpha', 'qa'(beta), 'pro'(product)。"
+    },
+    
+    cwd: {
+        alias: ["-c", "--cwd"],
+        length: 1,
+        description: "指定需要发布的项目路径。会尝试获取项目配置中的 .cortex/latest-pack，这种情况会覆盖 --from 参数; 若该文件不存在，则发布会中止;"
     },
     
     filters: {
@@ -101,15 +112,29 @@ lang.mix(Upload.prototype, {
             
         });
         
-        ch.getConf(o);
+        ch.getConf(o);    
+        
+        
+        var latest_pack_file, latest_pack;
+        
+        // if cwd is defined
+        if(o.cwd){
+            o.cwd = fsmore.stdPath(o.cwd);
+        
+            latest_pack_file = path.join(o.cwd, CORTEX_INFO_DIR, 'latest-pack');
+        
+            if(!fs.existsSync(latest_pack_file)){
+                throw "没有发现任何打包文件，请检查您的操作";
+            }
+            
+            latest_pack = fs.readFileSync(latest_pack_file);
+            o.from = path.join(o.cwd, CORTEX_INFO_DIR, latest_pack);
+        }
         
         this.conf = ch.getConf({ftpConf: {}});
         
         o.fromFTP = this._parseFTPUri(o.from);
         o.toFTP = this._parseFTPUri(o.to);
-        
-        console.log('upload options', this.options);
-        console.log('upload conf', this.conf);
     },
     
     _printLog: function(){ 
