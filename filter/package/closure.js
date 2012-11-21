@@ -38,7 +38,7 @@ ClosureTraverser.prototype = {
 
     _get_md5_origin:function(){
 
-        var latest_success_define_path = path_mod.join(process.cwd(),".cortex","latest-success");
+        var latest_success_define_path = path_mod.join(process.cwd(),".cortex","success-pack");
         var latest_success_path,md5_origin_path,md5_origin;
 
         if(fs.existsSync(latest_success_define_path)){
@@ -47,9 +47,15 @@ ClosureTraverser.prototype = {
 
             md5_origin_path = path_mod.join(process.cwd(),".cortex",latest_success_path,".cortex","md5-origin.json");
             console.log("md5_origin_path",md5_origin_path);
-            md5_origin = JSON.parse(
-                fs.readFileSync(md5_origin_path)
-            );
+
+            if(!fs.existsSync(md5_origin_path)){
+                console.log("无法获取",md5_origin_path);   
+                md5_origin = {};
+            }else{
+                md5_origin = JSON.parse(
+                    fs.readFileSync(md5_origin_path)
+                );
+            }
         }else{
             console.log("无法获取",latest_success_define_path);
             md5_origin = {};
