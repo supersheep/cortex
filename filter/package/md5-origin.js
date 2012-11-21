@@ -3,12 +3,12 @@ var fsMore = require("../../util/fs-more"),
     md5 = require("MD5"),
     child_process = require("child_process"),
     path = require("path"),
-	path_mod = require("path");
+    path_mod = require("path");
 
 
 /*
 var base_dir = path_mod.join(__dirname,'..','res'), // 准备分析的目录
-	root = path_mod.join(__dirname,'..',config.root_NAME); // 暂存文件夹
+    root = path_mod.join(__dirname,'..',config.root_NAME); // 暂存文件夹
  */
 
 module.exports = {
@@ -32,10 +32,10 @@ module.exports = {
                 self.data["/" + relpath] = md5(content);
             }
         });
-        
-				var md5_origin_path = path.join(this.root,".cortex","md5-origin.json");
-				fsMore.writeFileSync(md5_origin_path,JSON.stringify(this.data,null,2));
-				console.log("已将未压缩文件的md5列表保存至",md5_origin_path);
+
+        var md5_origin_path = path.join(this.root,".cortex","md5-origin.json");
+        fsMore.writeFileSync(md5_origin_path,JSON.stringify(this.data,null,2));
+        console.log("已将未压缩文件的md5列表保存至",md5_origin_path);
         done();
     },
 
