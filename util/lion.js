@@ -18,7 +18,7 @@ function get(opt,callback){
 		  }else if(error){
 		  	throw new Error(error);
 		  }else{
-		  	throw new Error("statusCode "+response.statusCode);
+		  	throw new Error("statusCode " + response.statusCode);
 		  }
 		})
 	}
