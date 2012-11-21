@@ -3,9 +3,12 @@ var lion = require('./lion');
 var url = require("url");
 var EventProxy = require("./event-proxy");
 
-var connection;
 
-function sqlMaker(type,table,pairs,where){
+function DB(){}
+
+DB.prototype = {
+
+sqlMaker: function(type,table,pairs,where){
 	var ret = "";
 
 	function stripValue(v){
@@ -59,19 +62,19 @@ function sqlMaker(type,table,pairs,where){
 
 	return ret;
 
-};
+},
 
-exports.connect = function(type,cb){
+connect : function (lion_db_prefix,cb){
 	var prefix_map = {
 		"old":"avatar-biz.main.master.jdbc.",
 		"new":"dp-common-service.common.master.jdbc."
 	};
-	var prefix = prefix_map[type];
+	var prefix = lion_db_prefix;
 
 	//if(connection){
 	//	cb(null,connection);
 	//}
-	connection = null;
+	var connection = null;
 
 	var dbconfig = {};
 	var eventproxy = new EventProxy(function(){
@@ -86,6 +89,7 @@ exports.connect = function(type,cb){
 		connection = mysql.createConnection(conn_opt);
 		connection.on("error",cb);
 		connection.connect();
+		self.connection = connection;
 		cb(null,connection,conn_opt);
 	});
 
@@ -113,15 +117,12 @@ exports.connect = function(type,cb){
 			eventproxy.trigger(action);
 		});
 	});
+},
 
-
-}
-
-
-function query(){
+query:function(){
 	var args = arguments;
 	var cb;
-
+	var connection = this.connection;
 	var itv = setTimeout(function(){
 		cb("数据库连接超时");
 	},10*1000);
@@ -143,9 +144,13 @@ function query(){
 	}
 
 	connection.query(args[0],mysqlcb);
+},
+
+end:function(){
+	this.connection && this.connection.end();
+}
 
 }
 
-exports.sqlMaker = sqlMaker;
-exports.query = query;
-exports.connection = connection;
+
+module.exports = DB;
