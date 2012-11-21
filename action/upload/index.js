@@ -101,12 +101,12 @@ lang.mix(Upload.prototype, {
             
         });
         
+        ch.getConf(o);
+        
         this.conf = ch.getConf({ftpConf: {}});
         
         o.fromFTP = this._parseFTPUri(o.from);
         o.toFTP = this._parseFTPUri(o.to);
-        
-        ch.getConf(o);
     },
     
     _printLog: function(){ 
