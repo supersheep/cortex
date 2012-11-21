@@ -51,7 +51,7 @@ CssTraverser.prototype = {
 
         lion.get({
                 key:"dp-common-web.imgResourceServer",
-                host:this.options.lionaddr,
+                pattern:this.options.lionaddr,
                 env:this.options.env
             },function(err,data){
             err && done(err);
