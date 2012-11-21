@@ -1,6 +1,7 @@
 "use strict";
 var
 async = require("async"),
+fs = require("fs"),
 DB = require("../../util/db"),
 path = require('path'),
 fsmore = require('../../util/fs-more');
@@ -12,18 +13,19 @@ function UpdateDB(options){
 
 
 UpdateDB.prototype = {
-    setup:function(){
+    setup:function(done){
         this.env.updatelist = [];
+        done();
     },
-    run: function(callback){
+    run: function(done){
         var self = this,
-            db = new DB(),
-            tasks = [],
-
+            db = new DB(this.options),
+            tasks = [];
+console.log("run db");
         self._getFileList();
 
         tasks = [function(done){
-            db.connect(this.options.lion_olddb,function(err,conn,dbconfig){
+            db.connect(self.options.lion_olddb,function(err,conn,dbconfig){
                 console.log("已连接数据库",dbconfig);
                 done();
             });
@@ -86,4 +88,9 @@ UpdateDB.prototype = {
             });
         });
     }
+};
+
+
+exports.create = function(options){
+    return new UpdateDB(options);
 };

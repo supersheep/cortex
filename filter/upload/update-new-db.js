@@ -10,16 +10,18 @@ function UpdateDB(options){
 
 
 UpdateDB.prototype = {
-    setup:function(){
+    setup:function(done){
         this.env.updateList = [];
+        done();
     },
-    run: function(callback){
+    run: function(done){
 
-        var table =  this.options.dbversion,
+        var self = this,
+						table =  this.options.dbversion,
             updatelist = this.env.updatelist,
-            db = new DB(),
+            db = new DB(this.options),
             tasks = [function(done){
-                db.connect(this.options.lion_newdb,function(err,conn,dbconfig){
+                db.connect(self.options.lion_newdb,function(err,conn,dbconfig){
                     console.log("已连接数据库",dbconfig);
                     done();
                 });
@@ -57,4 +59,9 @@ UpdateDB.prototype = {
             }
         });
     }
+};
+
+
+exports.create = function(options){
+    return new UpdateDB(options);
 };
