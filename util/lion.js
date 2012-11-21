@@ -8,8 +8,8 @@ function get(opt,callback){
 
 	if(["alpha","qa","pro"].indexOf(env) == -1){
 		callback(new Error("请传入环境参数，可为alpha,qa或pro"));
-	}else if(host){
-		callback(new Error("请传入参数指定lionhost"));
+	}else if(pattern){
+		callback(new Error("请传入参数指定lionaddr"));
 	}else{	
 		console.log("请求"+url+"获取lion配置");
 		request(url, function (error, response, body) {
