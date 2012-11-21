@@ -31,6 +31,12 @@ Package.AVAILIABLE_OPTIONS = {
         length: 1,
         description: "指定项目的远程地址。该参数仅对 Git 项目生效。"
     },
+
+    lionaddr:{
+        alias:["-l","--lion"],
+        length:1,
+        descroption:"指定lion配置读取服务的pattern地址。"
+    },
     
     env: {
         alias: ["-e", "--env"],

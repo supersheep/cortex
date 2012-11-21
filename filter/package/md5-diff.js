@@ -86,6 +86,7 @@ Diff.prototype = {
     
     _writeList: function(list){
         fs.writeFileSync( path.join(this.cur_build_root, CONFIG_DIR, 'filelist.json' ), JSON.stringify(list));
+        fs.writeFileSync( path.join(this.cur_build_root, CONFIG_DIR, 'filelist.txt' ), Object.keys(list).join('\n') );
     },
     
     _prepareData: function(){
