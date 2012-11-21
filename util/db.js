@@ -4,7 +4,9 @@ var url = require("url");
 var EventProxy = require("./event-proxy");
 
 
-function DB(){}
+function DB(options){
+	this.options = options;
+}
 
 DB.prototype = {
 
@@ -65,10 +67,7 @@ sqlMaker: function(type,table,pairs,where){
 },
 
 connect : function (lion_db_prefix,cb){
-	var prefix_map = {
-		"old":"avatar-biz.main.master.jdbc.",
-		"new":"dp-common-service.common.master.jdbc."
-	};
+	var self = this;
 	var prefix = lion_db_prefix;
 
 	//if(connection){
@@ -101,7 +100,8 @@ connect : function (lion_db_prefix,cb){
 
 	tasks.forEach(function(action){
 		lion.get({
-			env:config.env,
+			pattern:self.options.lionaddr,
+			env:self.options.env,
 			key:prefix+action
 		},function(err,data){
 			if(err){cb(err);return;}
