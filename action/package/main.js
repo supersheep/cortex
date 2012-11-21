@@ -9,7 +9,13 @@ filterEngine = new FilterEngine('../filter/package/');
 // 主流程
 // @param {string} root absolute path of working directory of target project
 function main(options){
-    options.filters = options.filters && options.filters.split(',') || [
+    options.filters = options.filters && options.filters.split(',').map(function(filter){
+        return filter.trim();
+        
+    }).filter(function(filter){
+        return !!filter;
+        
+    }) || [
         'update',
         'publish-imitate',
         'css',
