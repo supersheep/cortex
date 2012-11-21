@@ -20,9 +20,9 @@ SuccessLock.prototype = {
         tasks = [],
         temp_download_dir = fsmore.stdPath( path.join('~', '.cortex/temp-download') ),
         base_dir = o.fromFTP ? o.fromFTP.dir : this.env.local_dir,
-        from_path = path.join(base_dir,"..","..","latest-pack"),
-        from_success_path = path.join(base_dir,"..","..","success-pack"),
-        local_path = path.join(temp_download_dir,"latest-pack"),
+        from_path = path.join(base_dir,"..","..", this.options.env + '-latest-pack'),
+        from_success_path = path.join(base_dir,"..","..", this.options.env + '-success-pack'),
+        local_path = path.join(temp_download_dir, this.options.env + '-latest-pack'),
         local_dir;
         
         if(o.fromFTP){

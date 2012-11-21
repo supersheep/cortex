@@ -44,7 +44,7 @@ PrePublish.prototype = {
         build_dir = build_dirs.full,
         build_rel_dir = build_dirs.rel;
         
-        fs.writeFileSync(path.join(this.cwd, CORTEX_DIR, 'latest-pack'), path.join('build', build_rel_dir));
+        fs.writeFileSync(path.join(this.cwd, CORTEX_DIR, this.options.env + '-latest-pack'), path.join('build', build_rel_dir));
         
         this.env.build_dir = build_dir;
         

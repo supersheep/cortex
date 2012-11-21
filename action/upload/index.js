@@ -71,7 +71,7 @@ Upload.AVAILIABLE_OPTIONS = {
     cwd: {
         alias: ["-c", "--cwd"],
         length: 1,
-        description: "指定需要发布的项目路径。会尝试获取项目配置中的 .cortex/latest-pack，这种情况会覆盖 --from 参数; 若该文件不存在，则发布会中止;"
+        description: "指定需要发布的项目路径。会尝试获取项目配置中的 .cortex/<env>-latest-pack，这种情况会覆盖 --from 参数; 若该文件不存在，则发布会中止;"
     },
     
     filters: {
@@ -121,13 +121,14 @@ lang.mix(Upload.prototype, {
         if(o.cwd){
             o.cwd = fsmore.stdPath(o.cwd);
         
-            latest_pack_file = path.join(o.cwd, CORTEX_INFO_DIR, 'latest-pack');
+            latest_pack_file = path.join(o.cwd, CORTEX_INFO_DIR, o.env + '-latest-pack');
         
             if(!fs.existsSync(latest_pack_file)){
                 throw "没有发现任何打包文件，请检查您的操作";
             }
             
-            latest_pack = fs.readFileSync(latest_pack_file);
+            latest_pack = fs.readFileSync(latest_pack_file).toString();
+            
             o.from = path.join(o.cwd, CORTEX_INFO_DIR, latest_pack);
         }
         
