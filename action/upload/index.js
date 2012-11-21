@@ -107,6 +107,9 @@ lang.mix(Upload.prototype, {
         
         o.fromFTP = this._parseFTPUri(o.from);
         o.toFTP = this._parseFTPUri(o.to);
+        
+        console.log('upload options', this.options);
+        console.log('upload conf', this.conf);
     },
     
     _printLog: function(){ 
@@ -114,8 +117,8 @@ lang.mix(Upload.prototype, {
         
         o = this.options;
         
-        console.log('origin dir: ', (o.fromFTP ? 'remote' : 'local'), o.fromFTP.host + o.fromFTP.dir);
-        console.log('target dir: ', (o.toFTP ? 'remote' : 'local'), o.toFTP.host + o.toFTP.dir);
+        console.log('origin dir: ' + (o.fromFTP ? 'remote ' + o.fromFTP.host + o.fromFTP.dir : 'local' + o.from) );
+        console.log('target dir: ' + (o.toFTP ? 'remote ' + o.toFTP.host + o.toFTP.dir : 'local' + o.to) );
     },
     
     // merge global ftp authorization
@@ -128,21 +131,35 @@ lang.mix(Upload.prototype, {
     // ftp://[<user>:<password>@]<ip>[:<port>][/<dir>]
     // ->
     _parseFTPUri: function(uri){
-        var m = uri.match(REGEX_MATCHER_FTP_URI);
+        var 
         
-        return !!m ? this._mergeFTPConf({
-            user: m[1],
-            password: m[2],
-            host: m[3],
-            port: m[4],
-            dir: m[5]
+        m = uri.match(REGEX_MATCHER_FTP_URI),
+        parsed,
+        k;
+        
+        if(!!m){
+            parsed = {
+                user: m[1],
+                password: m[2],
+                host: m[3],
+                port: m[4],
+                dir: m[5]
+            };
             
-        }) : false
+            for(k in parsed){
+                if(!parsed[k]){
+                    delete parsed[k];
+                }
+            }
+            
+            parsed = this._mergeFTPConf(parsed);
+        }
+        
+        return parsed;
     },
     
     run: function(callback) {
         this._parseOptions();
-        
         this._printLog();
         
         main(this.options);
