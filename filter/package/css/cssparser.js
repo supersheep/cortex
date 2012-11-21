@@ -1,3 +1,4 @@
+"use strict";
 var fs = require('fs');
 var tracer = require("tracer").colorConsole();
 var mod_url = require('url');
@@ -28,7 +29,7 @@ function connector(parsed){
 		version = parsed.version,
 		ret;
 
-	ret = "http://" + host+name+ext+"/"+md5+ext;
+	ret = host+name+ext+"/"+md5+ext;
 
 	return ret;
 }
@@ -63,12 +64,9 @@ CssParser.prototype = {
 	 * 分析path下的所有图片路径
 	 * 并将相对路径转为绝对路径
 	 * @param  {String} path css文件的路径
-	 * @return {Object} {changed:Boolean,content:String}
+	 * @return {Object} {content:String}
 	 */
 	parse: function(csspath) {
-
-
-
 
 		var self = this;
 
@@ -84,19 +82,25 @@ CssParser.prototype = {
 		 * 2. url('http://i1.static.dp/s/c/i/b.png')
 		 * 3. url("./c.png")
 		 */
-		var reg = /url\(\s*(['"]?)([\w\.\/:]+)\1\s*\)/g;
+		var reg = /url\(\s*(['"]?)([^?#"'\)]*)\1\s*\)/g;
 
 		/**
 		 * 用以标识文件是否有修改
 		 * 有修改为1，反之为0
 		 */
-		var changed = 0;
+		// var changed = 0;
 
 		/**
 		 * 返回所有匹配
 		 * 例：matches[0] 为 "url(a.png)"
 		 */
-		var matches = content.match(reg);
+		var matches = {};
+
+		var m;
+
+		while(m = reg.exec(content)){
+			replaceMatch(m[0]);
+        }
 
 		/**
 		 * 涉及的所有图片路径
@@ -122,7 +126,8 @@ CssParser.prototype = {
 			 * 匹配 url('path/to/image.png')
 			 * 中的 path/to/image.png
 			 */
-			var reg = /\(\s*(['"]?)([\w\.\/:]+)\1\s*\)/,	
+			
+			var reg = /\(\s*(['"]?)([^?#'"\)]*)\1\s*\)/,	
 				parsed = "",
 				imgpath = match.match(reg)[2],
 				parsed_url;
@@ -136,42 +141,27 @@ CssParser.prototype = {
 				parsed = self.calculateImagePath(csspath,imgpath,false);
 			}
 
-			image_paths.push((parsed.name+parsed.ext).substr(1));
+			// image_paths.push((parsed.name+parsed.ext).substr(1));
 
 			parsed_url = "url(" + self.connector(parsed) + ")";
 
 			if(parsed_url !== match){
 				self._logs.push(mod_util.format("%s -> %s",match,parsed_url));
-				content = content.replace(match, parsed_url);;
-				changed = 1;
+				matches[match] = parsed_url;
 			}
 		}
 
-		/**
-		 * 数组去重
-		 * @return {[type]} [description]
-		 */
-		function duplicate(arr){
-			var ret = [];
-			arr.forEach(function(item){
-				if(!ret.some(function(el){
-					return item == el;
-				})){
-					ret.push(item);
-				};
-			});
-			return ret;
+		for(var key in matches){
+			content = content.replace(key,matches[key]);
 		}
 
 		/**
 		 * 循环处理所有匹配
 		 */
-		matches && matches.forEach(replaceMatch);
+		// matches && matches.forEach(replaceMatch);
 
 		return {
-			changed: changed,
-			content: content,
-			image_paths:duplicate(image_paths)
+			content: content
 		};
 	},
 
@@ -209,6 +199,7 @@ CssParser.prototype = {
 			name,
 			hash,
 			version_match,
+			version,
 			real_full_path,
 			reg_with_version = /([\w\/\.]+)(\.v\d+)/,
 			error_info,

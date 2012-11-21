@@ -58,7 +58,7 @@ CssTraverser.prototype = {
             try{
                 data = JSON.parse(data);
             }catch(e){}
-            console.log("lion hosts配置已获取");
+            console.log("lion hosts配置已获取",data);
             self.data["hosts"] = data; 
             eventproxy.trigger("hosts");
         });
@@ -88,7 +88,7 @@ CssTraverser.prototype = {
                 parsed = parser.parse(relpath); // {Object} css文件的处理结果
                 
                 parser.log();
-                console.log("改写文件 ",root,relpath);
+                console.log("改写文件 ",path_mod.join(root,relpath));
                 fsMore.writeFileSync( path_mod.join(root,relpath),parsed.content);
             }
         });
