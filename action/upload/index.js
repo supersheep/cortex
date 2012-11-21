@@ -53,6 +53,7 @@ Upload.AVAILIABLE_OPTIONS = {
     to: {
         alias: ["-t", "--to"],
         length: 1,
+        required: true,
         description: "文件包需要上传到的远程目录。格式为 ftp://[<user>:<password>@]<ip>[:<port>][/<dir>]; 也可指定为本地目录。"
     },
     
@@ -95,7 +96,8 @@ lang.mix(Upload.prototype, {
              }
              */
             file: '.cortex/upload.json',
-            env: o.env
+            env: o.env,
+            excludes: ['from', 'env']
             
         });
         

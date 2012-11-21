@@ -1,0 +1,9 @@
+{
+    "filters": [
+        "update",
+        "publish-imitate",
+        "css"
+    ],
+    
+    "branch": "alpha"
+}

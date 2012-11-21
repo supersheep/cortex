@@ -1,0 +1,14 @@
+{
+    "filters": [
+        "update",
+        "publish-imitate",
+        "md5-origin",
+        "css",
+        "yui-compressor",
+        "closure",
+        "md5",
+        "md5-diff"
+    ],
+    
+    "branch": "master"
+}
