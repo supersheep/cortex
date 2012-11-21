@@ -18,7 +18,8 @@ var CompressBase = {
 
 
 
-function ClosureTraverser(config){
+function ClosureTraverser(options){
+    this.options = options;
 }
 
 
@@ -38,7 +39,7 @@ ClosureTraverser.prototype = {
 
     _get_md5_origin:function(){
 
-        var latest_success_define_path = path_mod.join(process.cwd(),".cortex","success-pack");
+        var latest_success_define_path = path_mod.join(process.cwd(),".cortex",this.options.env + "-success-pack");
         var latest_success_path,md5_origin_path,md5_origin;
 
         if(fs.existsSync(latest_success_define_path)){

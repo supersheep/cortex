@@ -13,7 +13,8 @@ var base_dir = path_mod.join(__dirname,'..','res'), // 准备分析的目录
 
 
 
-function YUITraverser(config){
+function YUITraverser(options){
+    this.options = options;
 }
 
 
@@ -33,7 +34,7 @@ YUITraverser.prototype = {
 
     _get_md5_origin:function(){
 
-        var latest_success_define_path = path_mod.join(process.cwd(),".cortex","success-pack");
+        var latest_success_define_path = path_mod.join(process.cwd(),".cortex",this.options.env + "-success-pack");
         var latest_success_path,md5_origin_path,md5_origin;
 
         if(fs.existsSync(latest_success_define_path)){
