@@ -11,9 +11,7 @@ pubish: {
             dir: 'app/',
             to:  's/j/app/index'
         }
-    ],
-    
-    // build_directory: 'build/'
+    ]
 }
 
  */
@@ -22,7 +20,7 @@ var
 
 fs = require('fs'),
 tracer = require("tracer").colorConsole(),
-fs_more = require('../../util/fs-more'),
+fsmore = require('../../util/fs-more'),
 path = require('path'),
 CORTEX_DIR = '.cortex',
 CONFIG_FILE = 'publish.json';
@@ -44,7 +42,7 @@ PrePublish.prototype = {
         build_dir = build_dirs.full,
         build_rel_dir = build_dirs.rel;
         
-        fs.writeFileSync(path.join(this.cwd, CORTEX_DIR, this.options.env + '-latest-pack'), path.join('build', build_rel_dir));
+        this._writePackLog(build_rel_dir);
         
         this.env.build_dir = build_dir;
         
@@ -56,23 +54,58 @@ PrePublish.prototype = {
             dir = dir_setting.dir,
             to = dir_setting.to || dir;
             
-            console.log('正在将 ' + path.join(self.cwd, dir) + ' 目录复制到 ' + path.join(build_dir, to));
+            console.log('正在将 ' + path.join(self.options.cwd, dir) + ' 目录复制到 ' + path.join(build_dir, to));
             
-            fs_more.copyDirSync(
-                path.join(self.cwd, dir),
+            fsmore.copyDirSync(
+                path.join(self.options.cwd, dir),
                 path.join(build_dir, to)
             );
         });
         
         callback();
     },
+    
+    _writePackLog: function(build_rel_dir){
+        var
+        cortex_dir = path.join(this.options.cwd, CORTEX_DIR),
+        pack_dir = path.join(cortex_dir, this.options.env + '-pack'),
+        pack_date = 'pack-' + this._getDateString();
+    
+        fs.writeFileSync(path.join(cortex_dir, this.options.env + '-latest-pack'), build_rel_dir );
+        
+        fsmore.mkdirSync(pack_dir);
+        
+        var
+        fd = fs.openSync(path.join(pack_dir, pack_date), 'a+');
+        fs.writeSync(fd, build_rel_dir + '\n');
+        fs.closeSync(fd);
+    },
+    
+    _getDateString: function(timestamp){
+        var d = timestamp ? new Date(timestamp) : new Date;
+        
+        return [d.getFullYear(), this._makeSureLength(d.getMonth() + 1, 2, '0'), this._makeSureLength(d.getDate(), 2, '0')].join('-');
+    },
+    
+    _makeSureLength: function(str, length, fill){
+        str = String(str);
+    
+        var pre = '',
+            len = length - str.length;
+            
+        while(len --){
+            pre += fill;
+        }
+        
+        return pre + str;
+    },
 
     _getBuildDir: function(){
         var rel_dir = 'build-' + (+ new Date);
     
         return {
-            full: path.join(this.cwd, CORTEX_DIR, 'build', rel_dir),
-            rel: rel_dir
+            full: path.join(this.options.cwd, CORTEX_DIR, 'build', rel_dir),
+            rel: path.join('build', rel_dir)
         };
     }
 };
@@ -81,4 +114,3 @@ PrePublish.prototype = {
 exports.create = function(options){
     return new PrePublish(options);
 };
-

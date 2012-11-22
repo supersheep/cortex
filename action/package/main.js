@@ -25,7 +25,7 @@ function main(options){
         'md5-diff'
     ];
     
-    console.log("开始应用已配置的滤镜 >>>>>>>>>>");
+    console.log("开始应用已配置的滤镜 >>>>>>>>>>", options.filters);
     
     options.filters.forEach(function(filter){
         filterEngine.assign(filter, options);

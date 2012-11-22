@@ -9,12 +9,16 @@ var
 SUCCESS_LOCK_FILE = 'success.lock',
 MD5_FILE = 'md5.json',
 CONFIG_DIR = '.cortex',
-CONFIG_FILE = 'publish.json',
 
 fs = require('fs'),
-fs_more = require('../../util/fs-more'),
+fsmore = require('../../../util/fs-more'),
 tracer = require("tracer").colorConsole(),
-path = require('path');
+path = require('path'),
+
+
+lang = require('../../../util/lang'),
+
+extra = require('./promise-success');
 
 
 /**
@@ -24,6 +28,7 @@ path = require('path');
  */
 function Diff(options){
     this.cwd = options.cwd;
+    this.options = options;
 };
 
 
@@ -42,7 +47,7 @@ Diff.prototype = {
         
         try{
             pathname = path.join(this.cur_build_root, CONFIG_DIR, MD5_FILE);
-            cur_md5 = JSON.parse( fs.readFileSync(pathname) );
+            cur_md5 = require( fsmore.stdPath(pathname) );
         
         }catch(e){
             console.log(e);
@@ -85,67 +90,31 @@ Diff.prototype = {
     },
     
     _writeList: function(list){
-        fs.writeFileSync( path.join(this.cur_build_root, CONFIG_DIR, 'filelist.json' ), JSON.stringify(list));
+        fs.writeFileSync( path.join(this.cur_build_root, CONFIG_DIR, 'filelist.json' ), JSON.stringify(list, null, 2));
         fs.writeFileSync( path.join(this.cur_build_root, CONFIG_DIR, 'filelist.txt' ), Object.keys(list).join('\n') );
     },
     
     _prepareData: function(){
-        this._getBuildRoot();
-    
         var
         
-        build_dirs = this._getSortedBuildDirs();
+        config_dir = path.join(this.cwd, CONFIG_DIR),
         
-        if(!build_dirs.length){
-            tracer.error( '没有发现包文件夹，形如：build-<timestamp>/' );
-            throw 'error!';
+        latest_pack = fs.readFileSync( path.join(config_dir, this.options.env + '-latest-pack')).toString(),
+        success_pack = this._getLastSuccessBuild();
+        
+        if(!success_pack){
+            console.log('没有发现上一个成功的打包');
         }
         
+        this.cur_build_root = path.join(config_dir, latest_pack);
         
-        this.cur_build_root = path.join(this.build_root, build_dirs.shift());
+        this.last_build_root = !!success_pack ? path.join(config_dir, success_pack) : false;
         
-        var 
-        i = 0,
-        len = build_dirs.length,
-        dir,
-        last_build_dir;
-        
-        for(; i < len; i ++){
-            dir = build_dirs[i];
-            
-            if(
-                // there must be a 'success.lock' file at the last successfull build directory
-                fs_more.isFile(
-                    path.join(dir, CONFIG_DIR, SUCCESS_LOCK_FILE)
-                )
-            ){
-                last_build_dir = dir;
-                break;
-            }
-        }
-        
-        this.last_build_root = !!last_build_dir ? path.join(this.build_root, last_build_dir) : false;
-        
-    },
-    
-    _getBuildRoot: function(){
-        return this.build_root = path.join(this.cwd, CONFIG_DIR, 'build');
-    },
-    
-    _getSortedBuildDirs: function(){
-        var 
-        
-        root = this.build_root,
-        dir_content = fs.readdirSync(root);
-    
-        return dir_content.filter(function(current){
-            return fs_more.isDirectory(path.join(root, current));
-            
-        }).sort(function(a, b){
-            return a < b;
-        });
     }
 };
+
+
+lang.mix(Diff.prototype, extra);
 
 
 module.exports = {
