@@ -21,6 +21,7 @@ var
 fs = require('fs'),
 tracer = require("tracer").colorConsole(),
 fsmore = require('../../util/fs-more'),
+lang = require('../../util/lang'),
 path = require('path'),
 CORTEX_DIR = '.cortex',
 CONFIG_FILE = 'publish.json';
@@ -69,7 +70,7 @@ PrePublish.prototype = {
         var
         cortex_dir = path.join(this.options.cwd, CORTEX_DIR),
         pack_dir = path.join(cortex_dir, this.options.env + '-pack'),
-        pack_date = 'pack-' + this._getDateString();
+        pack_date = 'pack-' + lang.dateString();
     
         fs.writeFileSync(path.join(cortex_dir, this.options.env + '-latest-pack'), build_rel_dir );
         
@@ -80,25 +81,7 @@ PrePublish.prototype = {
         fs.writeSync(fd, build_rel_dir + '\n');
         fs.closeSync(fd);
     },
-    
-    _getDateString: function(timestamp){
-        var d = timestamp ? new Date(timestamp) : new Date;
-        
-        return [d.getFullYear(), this._makeSureLength(d.getMonth() + 1, 2, '0'), this._makeSureLength(d.getDate(), 2, '0')].join('-');
-    },
-    
-    _makeSureLength: function(str, length, fill){
-        str = String(str);
-    
-        var pre = '',
-            len = length - str.length;
-            
-        while(len --){
-            pre += fill;
-        }
-        
-        return pre + str;
-    },
+
 
     _getBuildDir: function(){
         var rel_dir = 'build-' + (+ new Date);

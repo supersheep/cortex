@@ -205,4 +205,25 @@ exports.pushUnique = function(append, array){
     }
     
     return append;
-};;
+};
+
+
+function makeSureLength(str, length, fill){
+    str = String(str);
+
+    var pre = '',
+        len = length - str.length;
+        
+    while(len --){
+        pre += fill;
+    }
+    
+    return pre + str;
+};
+
+
+exports.dateString = function(timestamp){
+    var d = timestamp ? new Date(timestamp) : new Date;
+    
+    return [d.getFullYear(), makeSureLength(d.getMonth() + 1, 2, '0'), makeSureLength(d.getDate(), 2, '0')].join('-');
+};

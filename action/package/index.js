@@ -4,7 +4,7 @@ ActionFactory = require("../../lib/action-factory"),
 ConfigHandler = require("../../lib/config-handler"),
 main = require("./main"),
 path = require("path"),
-Package = ActionFactory.create("Package");
+Package = ActionFactory.create("package");
 
 
 Package.AVAILIABLE_OPTIONS = {
