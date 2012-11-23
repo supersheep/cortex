@@ -28,9 +28,7 @@ function connector(parsed){
 		name = parsed.name,
 		version = parsed.version,
 		ret;
-
 	ret = host+name+ext+"/"+md5+ext;
-
 	return ret;
 }
 
@@ -201,7 +199,7 @@ CssParser.prototype = {
 			version_match,
 			version,
 			real_full_path,
-			reg_with_version = /([\w\/\.]+)(\.v\d+)/,
+			reg_with_version = /([\w\/\.\-\_]+)(\.v\d+)/,
 			error_info,
 			ext;
 

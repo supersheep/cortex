@@ -32,33 +32,13 @@ YUITraverser.prototype = {
         return path.replace(/\.css$/,".min.css");
     },
 
-    _get_md5_origin:function(){
-
-        var latest_success_define_path = path_mod.join(process.cwd(),".cortex",this.options.env + "-success-pack");
-        var latest_success_path,md5_origin_path,md5_origin;
-
-        if(fs.existsSync(latest_success_define_path)){
-            latest_success_path = fs.readFileSync(latest_success_define_path,"utf8");
-            console.log("latest_success_path is" ,latest_success_path);
-
-            md5_origin_path = path_mod.join(process.cwd(),".cortex",latest_success_path,".cortex","md5-origin.json");
-            console.log("md5_origin_path",md5_origin_path);
-
-            if(!fs.existsSync(md5_origin_path)){
-                console.log("无法获取",md5_origin_path);   
-                md5_origin = {};
-            }else{
-                md5_origin = JSON.parse(
-                    fs.readFileSync(md5_origin_path)
-                );
-            }
-        }else{
-            console.log("无法获取",latest_success_define_path);
-            md5_origin = {};
-        }
-        return md5_origin;
+    _get_md5_path:function(contents_md5){
+        var file_path = path_mod.join(this.env.build_dir,"..","..","compress-cache",contents_md5 + ".js");
+        return file_path;
     },
-
+    _is_changed:function(md5_path){
+        return fs.existsSync(md5_path);
+    },
     setup:function(done){
         this.root = this.env.build_dir; //config.cwd;
         this.project_base = path_mod.join(__dirname,"..","..");
@@ -71,8 +51,6 @@ YUITraverser.prototype = {
         
         var tasks = [];
 
-
-        var md5_origin = self._get_md5_origin();
 
         fsMore.traverseDir(root, function(info){
             var relpath = info.relPath,
@@ -90,8 +68,13 @@ YUITraverser.prototype = {
 
                     var content = fs.readFileSync(path);
 
-                    if(md5(content) == md5_origin["/" + relpath]){
-                        console.log("/" + relpath,"未改动，跳过");
+                    var content = fs.readFileSync(path);
+                    var contents_md5 = md5(content);
+                    var md5_path = self._get_md5_path(contents_md5);
+                    if(self._is_changed(md5_path)){
+                        console.log("/" + relpath,"not changed");
+                        console.log("copying file from %s to %s",md5_path,minpath);
+                        fsMore.copyFileSync(md5_path,minpath);
                         done();
                     }else{
                         child_process.exec(command,function(err){
@@ -100,6 +83,8 @@ YUITraverser.prototype = {
                                 return;
                             }else{
                                 console.log("已压缩css文件",path,"至",minpath);
+                                console.log("copying file from %s to %s",minpath,md5_path);
+                                fsMore.copyFileSync(minpath,md5_path);
                                 done(null);
                             }
                         });

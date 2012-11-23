@@ -55,9 +55,13 @@ CssTraverser.prototype = {
                 env:this.options.env
             },function(err,data){
             err && done(err);
+
             try{
-                data = JSON.parse(data);
-            }catch(e){}
+            data = JSON.parse(data);
+            }catch(e){
+                throw new Error("unable to parse" + data);
+            } 
+
             console.log("lion hosts配置已获取",data);
             self.data["hosts"] = data; 
             eventproxy.trigger("hosts");
