@@ -75,7 +75,7 @@ Upload.AVAILIABLE_OPTIONS = {
     },
     
     filters: {
-        alias: ["-f", "-filter"],
+        alias: ["-f", "-filters"],
         length: 1,
         description: "filter"
     }
