@@ -58,13 +58,13 @@ Upload.AVAILIABLE_OPTIONS = {
     to: {
         alias: ["-t", "--to"],
         length: 1,
-        required: true,
         description: "文件包需要上传到的远程目录。格式为 ftp://[<user>:<password>@]<ip>[:<port>][/<dir>]; 也可指定为本地目录。"
     },
     
     env: {
         alias: ["-e", "--env"],
         length: 1,
+        required: true,
         description: "指定发布的环境（可选）。对一个名为 <config>.json 的配置文件，cortex 会尝试读取 <config>.<env>.json 的文件。对于点评来说，可选的参数有 'alpha', 'qa'(beta), 'pro'(product)。"
     },
     
@@ -115,13 +115,20 @@ lang.mix(Upload.prototype, {
         ch.getConf(o);    
         
         
-        var latest_pack_file, latest_pack;
+        var 
+        
+        latest_pack_file, latest_pack,
+        cwd = o.cwd;    
         
         // if cwd is defined
-        if(o.cwd){
-            o.cwd = fsmore.stdPath(o.cwd);
+        if(cwd){
+            if(cwd.indexOf('..') === 0 || cwd.indexOf('.') === 0){
+                cwd = path.join(process.cwd(), cwd);
+            }
         
-            latest_pack_file = path.join(o.cwd, CORTEX_INFO_DIR, o.env + '-latest-pack');
+            o.cwd = cwd = fsmore.stdPath(cwd);
+        
+            latest_pack_file = path.join(cwd, CORTEX_INFO_DIR, o.env + '-latest-pack');
         
             if(!fs.existsSync(latest_pack_file)){
                 throw "没有发现任何打包文件，请检查您的操作";
@@ -129,7 +136,7 @@ lang.mix(Upload.prototype, {
             
             latest_pack = fs.readFileSync(latest_pack_file).toString();
             
-            o.from = path.join(o.cwd, CORTEX_INFO_DIR, latest_pack);
+            o.from = path.join(cwd, CORTEX_INFO_DIR, latest_pack);
         }
         
         this.conf = ch.getConf({ftpConf: {}});

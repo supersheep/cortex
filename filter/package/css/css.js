@@ -62,7 +62,6 @@ CssTraverser.prototype = {
                 throw new Error("unable to parse" + data);
             } 
 
-            console.log("lion hosts配置已获取",data);
             self.data["hosts"] = data; 
             eventproxy.trigger("hosts");
         });

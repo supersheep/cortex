@@ -41,6 +41,7 @@ Package.AVAILIABLE_OPTIONS = {
     env: {
         alias: ["-e", "--env"],
         length: 1,
+        required: true,
         description: "指定发布的环境（可选）。对一个名为 <config>.json 的配置文件，cortex 会尝试读取 <config>.<env>.json 的文件。该文件的优先级较低，若出现同名参数，可能会被显式指定的参数覆盖。对于点评来说，可选的参数有 'alpha', 'qa'(beta), 'pro'(product)"
     }
 };
@@ -77,7 +78,7 @@ Package.prototype.run = function() {
 
 
 Package.MESSAGE = {
-    USAGE: "usage: ctx package <root> [options]\n例:usage: ctx package -f update,publish-imitate,css,js",
+    USAGE: "usage: ctx package <root> [options]\n例:usage: ctx package -f publish-imitate,css,js",
     DESCRIBE: "从指定目录打包静态文件"
 };
 
