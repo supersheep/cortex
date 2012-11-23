@@ -9,7 +9,7 @@ Package = ActionFactory.create("package");
 
 Package.AVAILIABLE_OPTIONS = {
     filters:{
-        alias: ["-f", "--filter"],
+        alias: ["-f", "--filters"],
         length:1,
         description: "指定打包所使用的过滤器。可选过滤器包括：update, publish-imitate, css, js, yui-compressor, closure, md5, md5-diff。"
     },
