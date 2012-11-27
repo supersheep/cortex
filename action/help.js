@@ -7,9 +7,8 @@ REGEX_IS_JS = /\.js$/i,
 
 
 Actions = fs.readdirSync(__dirname).filter(function(name){
-    return name !== "help.js" && REGEX_IS_JS.test(name) || fs.statSync(path.join(__dirname, name)).isDirectory();
+    return REGEX_IS_JS.test(name) || fs.statSync(path.join(__dirname, name)).isDirectory();
 }),
-    
 ActionFactory = require("../lib/action-factory"),
 util = require("util");
 
@@ -39,10 +38,7 @@ Help.prototype.run = function(){
 function getHelp(action,verbose){
     var name = action.NAME,
         msg;
-        
-    if(name == "Help"){
-       return;
-    }
+     
 
     msg = util.format("ctx %s\n%s\n       %s\n",
         name.toLowerCase(),
@@ -63,6 +59,12 @@ function getHelp(action,verbose){
     
     return msg;
 }
+
+
+Help.MESSAGE = {
+    USAGE: "usage: ctx help <action>",
+    DESCRIBE: "查看某条命令的详细使用方法及参数"
+};
 
 function remainSpaces(num,left){
     var ret = '',
