@@ -28,7 +28,7 @@ function connector(parsed){
 		name = parsed.name,
 		version = parsed.version,
 		ret;
-	ret = host+name+ext+"/"+md5+ext;
+	ret = host+name+"."+md5+ext;
 	return ret;
 }
 
