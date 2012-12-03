@@ -22,7 +22,7 @@ UpdateDB.prototype = {
             db = new DB(this.options),
             tasks = [function(done){
                 db.connect(self.options.lion_newdb,function(err,conn,dbconfig){
-                    console.log("已连接数据库",dbconfig);
+                    console.log("已连接数据库");
                     done();
                 });
             }];

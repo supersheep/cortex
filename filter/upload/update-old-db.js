@@ -21,12 +21,12 @@ UpdateDB.prototype = {
         var self = this,
             db = new DB(this.options),
             tasks = [];
-console.log("run db");
+            
         self._getFileList();
 
         tasks = [function(done){
             db.connect(self.options.lion_olddb,function(err,conn,dbconfig){
-                console.log("已连接数据库",dbconfig);
+                console.log("已连接数据库");
                 done();
             });
         }];
@@ -40,6 +40,35 @@ console.log("run db");
                 });
             })(key);
         }
+
+        // update /x_x/version.js
+        tasks.push(function(done){
+            var table = self.options.dbversion,
+                url = "/x_x/version.js",
+                where = {"URL":url},
+                q =  db.sqlMaker("select",table,{},where);
+
+            db.query(q,function(err,rows){
+                if(err)throw err;
+                var row = rows[0],
+                    new_version = row?(row.Version+1):1,
+                    pair = {URL:url,Version:new_version,MD5:"v"+new_version,FileType:0},
+                    query = row
+                    ? db.sqlMaker("update",table,pair,where)
+                    : db.sqlMaker("insert",table,pair);
+
+                
+                db.query(query,function(err){
+                    if(err)throw err;
+                    console.log((row?"更新":"插入") + " " + JSON.stringify(pair));
+                    self.env.updatelist.push(pair);
+                    done();
+                });
+            });
+        });
+
+
+
 
         async.series(tasks,function(err){
             if(err){throw err;}else{
@@ -75,7 +104,8 @@ console.log("run db");
             if(err) throw err;
             var row = rows[0],
                 new_version = row?(row.Version+1):1,
-                pair = {URL:key,Version:new_version,FileType:self._fileTypeByPath(key)},
+                md5code = self.filelist[key],
+                pair = {URL:key,Version:new_version,MD5:md5code,FileType:self._fileTypeByPath(key)},
                 query = row
                     ? db.sqlMaker("update",table,pair,where)
                     : db.sqlMaker("insert",table,pair);

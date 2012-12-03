@@ -2,13 +2,36 @@ var
 
 path = require("path"),
 async = require("async"),
+md5 = require("md5"),
+fs = require("fs"),
 fsmore = require("../../util/fs-more"),
 ftp_handler = require("../../lib/ftp-handler");
+
+
+function generateMd5Path(fullpath){
+    console.log("fullpath",fullpath);
+    var extname = path.extname(fullpath),
+        dirname = path.dirname(fullpath),
+        basename = path.basename(fullpath,extname),
+        md5code = md5(fs.readFileSync(fullpath));
+
+    var md5path = dirname+path.sep+basename+"."+md5code+extname;
+
+    return md5path;
+}
+
+
+function inCortex(info){
+    return info.relPath.indexOf(".cortex") == 0;
+}
+
+function pathWithMd5(info){
+    return /\.[a-z0-9]{32}\./.test(info.relPath)
+}
 
 function Transfer(options){
     this.options = options;
 };
-
 
 Transfer.prototype = {
 
@@ -19,7 +42,6 @@ Transfer.prototype = {
         tasks = [],
         temp_download_dir = fsmore.stdPath( path.join('~', '.cortex/temp-download') ),
         local_dir = o.from;
-        
         if(o.fromFTP){
             local_dir = temp_download_dir;
         
@@ -40,6 +62,21 @@ Transfer.prototype = {
                 });
             });
         }
+
+        // make md5 files
+        tasks.push(function(done){
+            fsmore.traverseDir(local_dir,function(info){
+                var fullpath = info.fullPath,
+                    md5path;
+
+                if(info.isFile && !inCortex(info) && !pathWithMd5(info)){
+                    md5path = generateMd5Path(fullpath);
+                    console.log("cp",fullpath,md5path);
+                    fsmore.copyFileSync(fullpath,md5path);
+                }
+            });
+            done();
+        });
         
         if(o.toFTP){
             tasks.push(function(done){
