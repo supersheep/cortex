@@ -59,7 +59,8 @@ PrePublish.prototype = {
             
             fsmore.copyDirSync(
                 path.join(self.options.cwd, dir),
-                path.join(build_dir, to)
+                path.join(build_dir, to),
+                {encoding: 'binary'}
             );
         });
         

@@ -166,7 +166,6 @@ function copyDirSync(resource, destination, options){
             var
             
             rel_path = info.relPath;
-        
             copyFileSync(path.join(resource, rel_path), path.join(destination, rel_path), {
                 mode: options.file_mode,
                 encoding: options.encoding
@@ -195,7 +194,7 @@ function copyFileSync(resource, destination, options){
             destination = getUnconflictFilePathName(destination);
         }
         
-        content = fs.readFileSync(resource);
+        content = fs.readFileSync(resource,options.encoding || "utf8");
         
         writeFileSync(destination, content, {
             encoding: options.encoding
