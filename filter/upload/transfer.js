@@ -7,7 +7,7 @@ fs = require("fs"),
 fsmore = require("../../util/fs-more"),
 ftp_handler = require("../../lib/ftp-handler");
 
-
+/*
 function generateMd5Path(fullpath){
     console.log("fullpath",fullpath);
     var extname = path.extname(fullpath),
@@ -19,15 +19,15 @@ function generateMd5Path(fullpath){
 
     return md5path;
 }
+*/
 
+// function inCortex(info){
+//     return info.relPath.indexOf(".cortex") == 0;
+// }
 
-function inCortex(info){
-    return info.relPath.indexOf(".cortex") == 0;
-}
-
-function pathWithMd5(info){
-    return /\.[a-z0-9]{32}\./.test(info.relPath)
-}
+// function pathWithMd5(info){
+//     return /\.[a-z0-9]{32}\./.test(info.relPath)
+// }
 
 function Transfer(options){
     this.options = options;
@@ -64,7 +64,7 @@ Transfer.prototype = {
         }
 
         // make md5 files
-        tasks.push(function(done){
+        /*tasks.push(function(done){
             fsmore.traverseDir(local_dir,function(info){
                 var fullpath = info.fullPath,
                     md5path;
@@ -76,7 +76,7 @@ Transfer.prototype = {
                 }
             });
             done();
-        });
+        });*/
         
         if(o.toFTP){
             tasks.push(function(done){
