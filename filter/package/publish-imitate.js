@@ -46,8 +46,7 @@ PrePublish.prototype = {
         this._writePackLog(build_rel_dir);
         
         this.env.build_dir = build_dir;
-        
-        console.log('CORTEX BUILD_DIR ' + path.join(this.options.cwd, build_dir));
+        console.log('CORTEX BUILD_DIR ' + path.join(build_dir));
         
         (this.options.dirs || []).forEach(function(dir_setting){
             var 
