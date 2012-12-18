@@ -131,11 +131,16 @@ exports.mix = function(r, s, or, cl) {
 };
 
 
+/**
+ * @param {boolean=} strict if `or` is false and `strict` is false, 
+    property of receiver with `undefined` will treated as the receiver has no such key
+ */
 exports.merge = function(r, s, or, strict){
     if(!s || !r){
         return r;
     }
     
+    // merge 2 arrays
     if(exports.isArray(r) && exports.isArray(s)){
         return exports.pushUnique(r, s);
     }

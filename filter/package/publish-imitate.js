@@ -39,7 +39,7 @@ PrePublish.prototype = {
         
         self = this,
         
-        build_dirs = this._getBuildDir()
+        build_dirs = this._getBuildDir(),
         build_dir = build_dirs.full,
         build_rel_dir = build_dirs.rel;
         

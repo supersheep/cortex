@@ -242,6 +242,10 @@ function isDirectory(file){
 };
 
 
+/**
+ * It is weird that nodejs could not `require` user-based paths such as `~/abc`
+ * stdPath will convert such paths to absolute paths
+ */
 function stdPath(pathname){
     // '~/xxx' -> '/User/<myprofile>/'
     pathname = pathname.replace(REGEX_REPLACE_LEADING_TILDE, HOME);

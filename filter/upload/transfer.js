@@ -2,7 +2,7 @@ var
 
 path = require("path"),
 async = require("async"),
-md5 = require("MD5"),
+// md5 = require("MD5"),
 fs = require("fs"),
 fsmore = require("../../util/fs-more"),
 ftp_handler = require("../../lib/ftp-handler");
