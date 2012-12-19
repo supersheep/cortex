@@ -23,7 +23,7 @@ Package.AVAILIABLE_OPTIONS = {
     cwd: {
         alias: ["-c", "--cwd"],
         length: 1,
-        description: "指定需要打包的项目的目录。"
+        description: "指定需要打包的项目的目录。若这个参数没有指定目录或者该参数的值为 `.`，则 Cortex 会使用当前工作目录"
     },
     
     remote: {
