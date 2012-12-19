@@ -48,23 +48,32 @@ CssTraverser.prototype = {
         this.root = this.env.build_dir;
 
         eventproxy.assign("hosts");
-
-        lion.get({
+        
+        if(self.options.imgHosts){
+            self.data["hosts"] = self.options.imgHosts; 
+            eventproxy.trigger("hosts");
+        
+        }else{
+            lion.get({
                 key:"dp-common-web.imgResourceServer",
                 pattern:this.options.lionaddr,
                 env:this.options.env
+                
             },function(err,data){
-            err && done(err);
+                err && done(err);
+    
+                try{
+                data = JSON.parse(data);
+                }catch(e){
+                    throw new Error("unable to parse" + data);
+                } 
+    
+                self.data["hosts"] = data; 
+                eventproxy.trigger("hosts");
+            });
+        }
 
-            try{
-            data = JSON.parse(data);
-            }catch(e){
-                throw new Error("unable to parse" + data);
-            } 
-
-            self.data["hosts"] = data; 
-            eventproxy.trigger("hosts");
-        });
+        
 
     },
 
