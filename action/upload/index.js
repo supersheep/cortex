@@ -74,6 +74,12 @@ Upload.AVAILIABLE_OPTIONS = {
         description: "指定需要发布的项目路径。会尝试获取项目配置中的 .cortex/<env>-latest-pack，这种情况会覆盖 --from 参数; 若该文件不存在，则发布会中止;"
     },
     
+    uploadCtx:{
+        alias: ["-x","--ctx"],
+        length:0,
+        description:"指定是否需要上传.cortex文件夹，默认不需要，当需要将打包的结果上传至包仓库ftp，以供后续操作时，需要将其开启"
+    },
+
     filters: {
         alias: ["-f", "-filters"],
         length: 1,
