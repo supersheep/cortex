@@ -62,7 +62,7 @@ Transfer.prototype = {
                 });
             });
         }
-
+        
         // make md5 files
         /*tasks.push(function(done){
             fsmore.traverseDir(local_dir,function(info){
@@ -86,8 +86,8 @@ Transfer.prototype = {
                     user        : o.toFTP.user,
                     password    : o.toFTP.password,
                     host        : o.toFTP.host,
-                    port        : o.toFTP.port
-                    
+                    port        : o.toFTP.port,
+                    uploadCtx   : o.uploadCtx   
                 }, function(){
                     done();
                 });
