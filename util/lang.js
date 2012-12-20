@@ -174,6 +174,29 @@ exports.merge = function(r, s, or, strict){
     return r;
 };
 
+/**
+ * @param {string} template template string
+ * @param {Object} params
+ */
+exports.sub = function(template, params){
+    
+    // suppose:
+    // template = 'abc{a}\\{b}';
+    // params = { a: 1, b: 2 };
+    
+    // returns: 'abc1{b}'
+    return ('' + template).replace(/\\?\{([^{}]+)\}/g, function(match, name){ // name -> match group 1
+    
+        // never substitute escaped braces `\\{}`
+        // '\\{b}' -> '{b}'
+        return match.charAt(0) === '\\' ? match.slice(1)
+            :
+                // '{a}' -> '1'
+                ( params[name] != null ? params[name] : '');
+    });
+};
+
+
 
 exports.pushUnique = function(append, array){
     if(Object.prototype.toString.call(array) !== '[object Array]'){
