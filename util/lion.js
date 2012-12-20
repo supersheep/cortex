@@ -6,8 +6,8 @@ function get(opt,callback){
 	pattern = opt.pattern,
 	url = pattern.replace("{env}",env).replace("{key}",key);
 
-	if(["alpha","qa","pro"].indexOf(env) == -1){
-		callback(new Error("请传入环境参数，可为alpha,qa或pro"));
+	if(["alpha","qa","product"].indexOf(env) == -1){
+		callback(new Error("请传入环境参数，可为alpha,qa或product"));
 	}else if(!pattern){
 		callback(new Error("请传入参数指定lionaddr"));
 	}else{	

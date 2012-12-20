@@ -65,7 +65,7 @@ Upload.AVAILIABLE_OPTIONS = {
         alias: ["-e", "--env"],
         length: 1,
         required: true,
-        description: "指定发布的环境（可选）。对一个名为 <config>.json 的配置文件，cortex 会尝试读取 <config>.<env>.json 的文件。对于点评来说，可选的参数有 'alpha', 'qa'(beta), 'pro'(product)。"
+        description: "指定发布的环境（可选）。对一个名为 <config>.json 的配置文件，cortex 会尝试读取 <config>.<env>.json 的文件。对于点评来说，可选的参数有 'alpha', 'qa'(beta), 'product'(product)。"
     },
     
     cwd: {
