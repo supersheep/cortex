@@ -41,28 +41,29 @@ UpdateDB.prototype = {
             })(key);
         }
 
-        // update /x_x/version.js
-        tasks.push(function(done){
-            var table = self.options.dbversion,
-                url = "/x_x/version.js",
-                where = {"URL":url},
-                q =  db.sqlMaker("select",table,{},where);
+        // update /x_x/version.js 及 /x_x/version.min.js
+        ["/x_x/version.js","/x_x/version.min.js"].forEach(function(url){
+            tasks.push(function(done){
+                var table = self.options.dbversion,
+                    where = {"URL":url},
+                    q =  db.sqlMaker("select",table,{},where);
 
-            db.query(q,function(err,rows){
-                if(err)throw err;
-                var row = rows[0],
-                    new_version = row?(row.Version+1):1,
-                    pair = {URL:url,Version:new_version,MD5:"v"+new_version,FileType:0},
-                    query = row
-                    ? db.sqlMaker("update",table,pair,where)
-                    : db.sqlMaker("insert",table,pair);
-
-                
-                db.query(query,function(err){
+                db.query(q,function(err,rows){
                     if(err)throw err;
-                    console.log((row?"更新":"插入") + " " + JSON.stringify(pair));
-                    self.env.updatelist.push(pair);
-                    done();
+                    var row = rows[0],
+                        new_version = row?(row.Version+1):1,
+                        pair = {URL:url,Version:new_version,MD5:"v"+new_version,FileType:0},
+                        query = row
+                        ? db.sqlMaker("update",table,pair,where)
+                        : db.sqlMaker("insert",table,pair);
+
+                    
+                    db.query(query,function(err){
+                        if(err)throw err;
+                        console.log((row?"更新":"插入") + " " + JSON.stringify(pair));
+                        self.env.updatelist.push(pair);
+                        done();
+                    });
                 });
             });
         });
