@@ -1,5 +1,6 @@
 "use strict";
 var
+lang = require("../../util/lang"),
 async = require("async"),
 fs = require("fs"),
 DB = require("../../util/db"),
@@ -95,6 +96,17 @@ UpdateDB.prototype = {
         this.filelist = require(filelist_path);
     },
     
+    _getNow:function(){
+        var now = new Date();
+        function addZero(number){
+            var ret = number > 9 ? number : "0" + number;
+            return ""+ret;
+        }
+        return lang.sub("{0}-{1}-{2} {3}:{4}:{5}",[now.getFullYear(),now.getMonth()+1,now.getDate(),now.getHours(),now.getMinutes(),now.getSeconds()].map(function(number){
+            return addZero(number);
+        }));
+    },
+
     _updateVersion: function(db, key,done){
         var self = this,
             table = this.options.dbversion,
@@ -106,10 +118,11 @@ UpdateDB.prototype = {
             var row = rows[0],
                 new_version = row?(row.Version+1):1,
                 md5code = self.filelist[key],
+                now = self._getNow(),
                 pair = {URL:key,Version:new_version,MD5:md5code,FileType:self._fileTypeByPath(key)},
                 query = row
                     ? db.sqlMaker("update",table,pair,where)
-                    : db.sqlMaker("insert",table,pair);
+                    : db.sqlMaker("insert",table,lang.mix({AddDate:now},pair));
 
             db.query(query,function(err){
                 if(err)throw err;

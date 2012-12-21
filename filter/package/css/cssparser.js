@@ -1,6 +1,5 @@
 "use strict";
 var fs = require('fs');
-var tracer = require("tracer").colorConsole();
 var mod_url = require('url');
 var mod_path = require('path');
 var mod_md5 = require('MD5');
@@ -139,6 +138,9 @@ CssParser.prototype = {
 				parsed = self.calculateImagePath(csspath,imgpath,false);
 			}
 
+			if(!parsed){
+				return;
+			}
 			// image_paths.push((parsed.name+parsed.ext).substr(1));
 
 			parsed_url = "url(" + self.connector(parsed) + ")";
@@ -237,20 +239,21 @@ CssParser.prototype = {
 
 		
 		if(!fs.existsSync(real_full_path)){
-			error_info = "图片不存在 " + csspath + " -> " + real_full_path;
-			throw Error(error_info);
+			error_info = "图片不存在 " + csspath + " -> " + fullpath;
+			console.warn("[WARN] " + error_info);
+			return false;
+		}else{
+			hash = mod_md5(fs.readFileSync(real_full_path));
+			return {
+				csspath:csspath,
+				absolute:absolute,
+				host:host,
+				ext:ext,
+				md5:hash,
+				name:name
+			};
 		}
-
-		hash = mod_md5(fs.readFileSync(real_full_path));
-
-		return {
-			csspath:csspath,
-			absolute:absolute,
-			host:host,
-			ext:ext,
-			md5:hash,
-			name:name
-		};
+		
 	}
 }
 
