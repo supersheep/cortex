@@ -239,7 +239,7 @@ CssParser.prototype = {
 
 		
 		if(!fs.existsSync(real_full_path)){
-			error_info = "图片不存在 " + csspath + " -> " + full_path;
+			error_info = "图片不存在 " + csspath + " -> " + fullpath;
 			console.warn("[WARN] " + error_info);
 			return false;
 		}else{
