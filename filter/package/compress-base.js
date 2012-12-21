@@ -26,7 +26,8 @@ CompressBase.prototype = {
     },
 
     _makeMinPath:function(path){
-        return path.replace(/\.css$/,".min.css");
+        var extname = path_mod.extname(path);
+        return path.replace(extname,".min"+extname);
     },
 
     _get_md5_path:function(contents_md5){
@@ -58,7 +59,7 @@ CompressBase.prototype = {
                     var 
                     dir = path_mod.join(self.project_base,'tool',self.options.path)
                     ,path = info.fullPath
-                    ,minpath = self._makeMinPath(path)
+                    ,minpath = self.options.nomin ? path : self._makeMinPath(path)
                     ,command = lang.sub(self.options.command,{
                         dir:dir,
                         path:path,
@@ -68,7 +69,7 @@ CompressBase.prototype = {
                     ,contents_md5 = md5(content)
                     ,md5_path = self._get_md5_path(contents_md5);
                     
-
+                    console.log("command is "+command);
                     if(self._is_changed(md5_path)){
                         console.log("/" + relpath,"未变动");
                         fsMore.copyFileSync(md5_path,minpath);
