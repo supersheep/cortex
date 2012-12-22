@@ -68,11 +68,12 @@ CompressBase.prototype = {
                     ,content = fs.readFileSync(path)
                     ,contents_md5 = md5(content)
                     ,md5_path = self._get_md5_path(contents_md5);
-                    
-                    console.log("command is "+command);
+
                     if(self._is_changed(md5_path)){
                         console.log("/" + relpath,"未变动");
-                        fsMore.copyFileSync(md5_path,minpath);
+                        fsMore.copyFileSync(md5_path,minpath,{
+                            encoding:"binary"
+                        });
                         done();
                     }else{
                         child_process.exec(command,function(err){
@@ -84,7 +85,9 @@ CompressBase.prototype = {
                                     path:path,
                                     minpath:minpath
                                 });
-                                fsMore.copyFileSync(minpath,md5_path);
+                                fsMore.copyFileSync(minpath,md5_path,{
+                                    encoding:"binary"
+                                });
                                 done(null);
                             }
                         });
