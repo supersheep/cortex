@@ -56,14 +56,11 @@ Diff.prototype = {
         }
         
         if(this.last_build_root){
-            try{
-                pathname = path.join(this.last_build_root, CONFIG_DIR, MD5_FILE);
-                last_md5 = JSON.parse( fs.readFileSync(pathname) );
-            
-            }catch(e){
-                console.log(e);
-                tracer.error( '分析 ' + pathname + '时出错，请检查你的代码' );
-                throw 'error!';
+            pathname = path.join(this.last_build_root, CONFIG_DIR, MD5_FILE);
+            if(fs.existsSync(pathname)){
+                try{
+                    last_md5 = JSON.parse( fs.readFileSync(pathname) );
+                }catch(e){}
             }
         }
         
