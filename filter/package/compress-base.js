@@ -78,18 +78,17 @@ CompressBase.prototype = {
                     }else{
                         child_process.exec(command,function(err){
                             if(err){
-                                done(err);
-                                return;
+                                console.log("[WARN]" + path + "无法压缩");
                             }else{
                                 self.printMsg("compressed",{
                                     path:path,
                                     minpath:minpath
                                 });
-                                fsMore.copyFileSync(minpath,md5_path,{
-                                    encoding:"binary"
-                                });
-                                done(null);
                             }
+                            fsMore.copyFileSync(minpath,md5_path,{
+                                encoding:"binary"
+                            });
+                            done(null);
                         });
                     }
                 });
