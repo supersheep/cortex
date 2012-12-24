@@ -60,7 +60,9 @@ Diff.prototype = {
             if(fs.existsSync(pathname)){
                 try{
                     last_md5 = JSON.parse( fs.readFileSync(pathname) );
-                }catch(e){}
+                }catch(e){
+                    last_md5 = null;
+                }
             }
         }
         
