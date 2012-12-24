@@ -69,7 +69,7 @@ Diff.prototype = {
         var
         
         diff = this._diff(cur_md5, last_md5 || {});
-        
+       console.log("[INFO] write list") 
         this._writeList(diff);
         
         callback();

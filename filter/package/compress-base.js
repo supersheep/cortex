@@ -99,7 +99,7 @@ CompressBase.prototype = {
 
         async.series(tasks,function(err){
             if(err){
-                throw new Error(err);
+                console.warn("[WARN]"+err);
                 return;
             }
             done();
