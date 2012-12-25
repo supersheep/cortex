@@ -82,9 +82,25 @@ UpdateDB.prototype = {
     },
 
     _fileTypeByPath: function(p){
-        return ['lib/1.0/','s/j/app/','b/js/lib/','b/js/app/','t/jsnew/app/'].some(function(prefix){
-            return p.indexOf(prefix) == 1 && path.extname(p) == ".js";
-        }) ? 1 : 0;
+        function prefixWith(arr){
+            return arr.some(function(prefix){
+                return p.indexOf(prefix) == 1 && path.extname(p) == ".js";
+            });
+        }
+
+        var map = {
+            "1":["lib/1.0"],
+            "2":["s/j/app"],
+            "3":["b/js/lib","b/js/app"],
+            "4":["t/jsnew/app/"]
+        };
+
+        for(var key in map){
+            if(prefixWith(map[key])){
+                return key
+            }
+        }    
+        return 0;
     },
     _getFileList: function(){
         var filelist_path = fsmore.stdPath( path.join(this.env.local_dir, ".cortex", "md5.json") );
