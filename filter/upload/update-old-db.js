@@ -87,10 +87,10 @@ UpdateDB.prototype = {
         }) ? 1 : 0;
     },
     _getFileList: function(){
-        var filelist_path = fsmore.stdPath( path.join(this.env.local_dir, ".cortex", "filelist.json") );
+        var filelist_path = fsmore.stdPath( path.join(this.env.local_dir, ".cortex", "md5.json") );
         
         if(!fs.existsSync(filelist_path)){
-            throw new Error("未包含 .cortex/filelist.json");
+            throw new Error("未包含 .cortex/md5.json");
         }
         
         this.filelist = require(filelist_path);
