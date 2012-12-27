@@ -7,11 +7,7 @@ module.exports = {
             nomin:true,
             path:"pngout-"+process.platform,
             command:"{dir} -y {path} {path}",
-            ext:["png"],
-            messages:{
-                "end":"png压缩处理完毕",
-                "compressed":"已压缩png文件{path}"
-            }
+            ext:["png"]
         });
     }
 };

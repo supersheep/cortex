@@ -6,11 +6,7 @@ module.exports = {
             config:config,
             nomin:true,
             command:["gifsicle -b -O3 {path}"],
-            ext:["gif"],
-            messages:{
-                "end":"gif压缩处理完毕",
-                "compressed":"已压缩gif文件{path}"
-            }
+            ext:["gif"]
         });
     }
 };
