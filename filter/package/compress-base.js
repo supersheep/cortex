@@ -46,6 +46,7 @@ CompressBase.prototype = {
     run:function(done){
         var self = this,
             root = self.root,
+            o = self.options,
             tasks = [];
 
 
@@ -70,7 +71,7 @@ CompressBase.prototype = {
                     ,md5_path = self._get_md5_path(contents_md5);
 
                     if(self._is_changed(md5_path)){
-                        console.log("/" + relpath,"未变动");
+                        console.log("/" + relpath,"未变动",contents_md5);
                         fsMore.copyFileSync(md5_path,minpath,{
                             encoding:"binary"
                         });
@@ -78,11 +79,15 @@ CompressBase.prototype = {
                     }else{
                         child_process.exec(command,function(err){
                             if(err){
-                                console.log("[WARN]" + path + "无法压缩");
+                                if(o.throwError){
+                                    throw err;
+                                }else{
+                                    console.log("[WARN]" + path + "无法压缩" + err);
+                                }
                             }else{
                                 self.printMsg("compressed",{
-                                    path:path,
-                                    minpath:minpath
+                                    path:info.relPath,
+                                    minpath:self._makeMinPath(info.relPath)
                                 });
                             }
                             fsMore.copyFileSync(minpath,md5_path,{
@@ -96,17 +101,18 @@ CompressBase.prototype = {
             }
         });
 
-        async.series(tasks,function(err){
-            if(err){
-                console.warn("[WARN]"+err);
-                return;
-            }
+        async.series(tasks,function(){
+            // no error will come here
             done();
         });
     },
 
     printMsg:function(name,args){
-        console.log(lang.sub(this.options.messages[name],args));
+        var msgs = {
+            "end":this.options.ext.join(",") + "文件压缩完毕",
+            "compressed":"已压缩 {path} 至 {minpath}"
+        }
+        console.log(lang.sub(msgs[name],args));
     },
     tearDown:function(done){
         this.printMsg("end");
