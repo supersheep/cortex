@@ -82,11 +82,30 @@ UpdateDB.prototype = {
     },
 
     _fileTypeByPath: function(p){
-        function prefixWith(arr){
+
+        function prefixWith(arr,p){
             return arr.some(function(prefix){
-                return p.indexOf(prefix) == 1 && path.extname(p) == ".js";
+                return p.indexOf(prefix) == 1;
             });
         }
+
+        function isJs(p){
+            return path.extname(p) == ".js"
+        }
+
+        // file as fx/core.js 
+        // the regexp to test will be /fx\/.+\.js/
+        function inPackage(p){
+            return packageList.some(function(pkgname){
+                return new RegExp(pkgname+ "\\\/.+\\\.js").test(p);
+            });
+        }
+
+        function inNeuron(p){
+            return /neuron/.test(p);
+        }
+
+        var packageList = ['switch','io','util','fx','event'];
 
         var map = {
             "1":["lib/1.0"],
@@ -95,8 +114,14 @@ UpdateDB.prototype = {
             "4":["t/jsnew/app/"]
         };
 
+
         for(var key in map){
-            if(prefixWith(map[key])){
+            if(
+                prefixWith(map[key],p)
+                && isJs(p)
+                && !inPackage(p)
+                && !inNeuron(p)
+            ){
                 return key
             }
         }    
