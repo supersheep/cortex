@@ -34,7 +34,7 @@ CompressBase.prototype = {
         var file_path = path_mod.join(this.env.build_dir,"..","..","compress-cache",contents_md5);
         return file_path;
     },
-    _is_changed:function(md5_path){
+    _is_not_changed:function(md5_path){
         return fs.existsSync(md5_path);
     },
     setup:function(done){
@@ -68,14 +68,39 @@ CompressBase.prototype = {
                     })
                     ,content = fs.readFileSync(path)
                     ,contents_md5 = md5(content)
-                    ,md5_path = self._get_md5_path(contents_md5);
+                    ,md5_path = self._get_md5_path(contents_md5)
+                    ,changed = false
+                    ,empty = false
+                    ,origin_size = fs.lstatSync(path).size
+                    ,compressed_size
+                    ,stats;
 
-                    if(self._is_changed(md5_path)){
-                        console.log("/" + relpath,"未变动",contents_md5);
+
+                    if(self._is_not_changed(md5_path)){
                         fsMore.copyFileSync(md5_path,minpath,{
                             encoding:"binary"
                         });
-                        done();
+                        stats = fs.lstatSync(minpath);
+                        compressed_size = stats.size;
+                        if(!compressed_size){
+                            empty = true;
+                            fs.writeFileSync(minpath,content,{
+                                encoding:"binary"
+                            });
+                            compressed_size = origin_size;
+                        }
+
+                        self.printMsg("compressed",{
+                            path:relpath,
+                            minpath:self._makeMinPath(relpath),
+                            compressed_size:compressed_size,
+                            origin_size:origin_size,
+                            percantage:(100-compressed_size/origin_size*100).toFixed(2),
+                            empty:empty,
+                            changed:changed
+                        });
+                        
+                        done(null)
                     }else{
                         child_process.exec(command,function(err){
                             if(err){
@@ -84,16 +109,35 @@ CompressBase.prototype = {
                                 }else{
                                     console.log("[WARN]" + path + "无法压缩" + err);
                                 }
+                            }
+
+                            changed = true;
+                            stats = fs.lstatSync(minpath);
+
+                            compressed_size = stats.size;
+                            if(!compressed_size){
+                                empty = true;
+                                fs.writeFileSync(minpath,content,{
+                                    encoding:"binary"
+                                });
+                                compressed_size = origin_size;
                             }else{
-                                self.printMsg("compressed",{
-                                    path:info.relPath,
-                                    minpath:self._makeMinPath(info.relPath)
+                                fsMore.copyFileSync(minpath,md5_path,{
+                                    encoding:"binary"
                                 });
                             }
-                            fsMore.copyFileSync(minpath,md5_path,{
-                                encoding:"binary"
+
+                            self.printMsg("compressed",{
+                                path:relpath,
+                                minpath:self._makeMinPath(relpath),
+                                compressed_size:compressed_size,
+                                origin_size:origin_size,
+                                percantage:(100-compressed_size/origin_size*100).toFixed(2),
+                                empty:empty,
+                                changed:changed
                             });
-                            done(null);
+                            done(null); 
+
                         });
                     }
                 });
@@ -110,8 +154,13 @@ CompressBase.prototype = {
     printMsg:function(name,args){
         var msgs = {
             "end":this.options.ext.join(",") + "文件压缩完毕",
-            "compressed":"已压缩 {path} 至 {minpath}"
+            "compressed":"已压缩 {path}"
+            + (this.options.nomin ? "" : " 至 {minpath}") 
+            + (" 压缩：{percantage}%")
+            + ((args && args.empty)?" 为空":"")
+            + ((args && args.changed)?" 有变动":"")
         }
+
         console.log(lang.sub(msgs[name],args));
     },
     tearDown:function(done){
