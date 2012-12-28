@@ -92,6 +92,7 @@ CompressBase.prototype = {
 
                         self.printMsg("compressed",{
                             path:relpath,
+                            md5:contents_md5.substr(0,7),
                             minpath:self._makeMinPath(relpath),
                             compressed_size:compressed_size,
                             origin_size:origin_size,
@@ -129,6 +130,7 @@ CompressBase.prototype = {
 
                             self.printMsg("compressed",{
                                 path:relpath,
+                                md5:contents_md5.substr(0,7),
                                 minpath:self._makeMinPath(relpath),
                                 compressed_size:compressed_size,
                                 origin_size:origin_size,
@@ -159,6 +161,7 @@ CompressBase.prototype = {
             + (" 压缩：{percantage}%")
             + ((args && args.empty)?" 为空":"")
             + ((args && args.changed)?" 有变动":"")
+            + (" {md5}")
         }
 
         console.log(lang.sub(msgs[name],args));
