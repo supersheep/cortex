@@ -111,7 +111,7 @@ UpdateDB.prototype = {
             "1":["lib/1.0"],
             "2":["s/j/app"],
             "3":["t/jsnew/app/"],
-            "4":["b/js/lib","b/js/app"]
+            "4":["b/js/app"]
         };
 
 
