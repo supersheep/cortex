@@ -60,10 +60,15 @@ CompressBase.prototype = {
                     var 
                     dir = path_mod.join(self.project_base,'tool',self.options.path)
                     ,path = info.fullPath
+                    ,dirname = path_mod.dirname(path)
+                    ,filename = path_mod.basename(path,path_mod.extname(path))
                     ,minpath = self.options.nomin ? path : self._makeMinPath(path)
                     ,command = lang.sub(self.options.command,{
+                        filename:filename,
+                        dirname:dirname,
                         dir:dir,
                         path:path,
+                        root:root,
                         minpath:minpath
                     })
                     ,content = fs.readFileSync(path)
@@ -103,6 +108,7 @@ CompressBase.prototype = {
                         
                         done(null)
                     }else{
+                        console.log(command);
                         child_process.exec(command,function(err){
                             if(err){
                                 if(o.throwError){
