@@ -108,7 +108,6 @@ CompressBase.prototype = {
                         
                         done(null)
                     }else{
-                        console.log(command);
                         child_process.exec(command,function(err){
                             if(err){
                                 if(o.throwError){
