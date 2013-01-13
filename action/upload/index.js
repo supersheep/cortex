@@ -208,7 +208,7 @@ lang.mix(Upload.prototype, {
 
 
 Upload.MESSAGE = {
-    USAGE   : "usage: ctx upload",
+    USAGE   : "usage: ctx upload [options]",
     DESCRIBE: "将本地项目目录上传并更新数据库"
 };
 

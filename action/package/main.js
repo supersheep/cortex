@@ -15,15 +15,7 @@ function main(options){
     }).filter(function(filter){
         return !!filter;
         
-    }) || [
-        'update',
-        'publish-imitate',
-        'css',
-        'yui-compressor',
-        'closure',
-        'md5',
-        'md5-diff'
-    ];
+    });
     
     console.log("开始应用已配置的滤镜 >>>>>>>>>>", options.filters.join(', '));
     
