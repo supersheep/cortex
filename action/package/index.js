@@ -43,12 +43,18 @@ Package.AVAILIABLE_OPTIONS = {
         length: 1,
         required: true,
         description: "指定发布的环境（必须指定）。对一个名为 <config>.json 的配置文件，cortex 会尝试读取 <config>.<env>.json 的文件。该文件的优先级较低，若出现同名参数，可能会被显式指定的参数覆盖。对于点评来说，可选的值包括 'dev','alpha', 'qa'(beta), 'product'"
+    },
+
+    dest: {
+        alias: ["-d", "--dest"],
+        length: 1,
+        description: "指定本地目标工作目录，会将打包后的文件拷贝到该目录中"
     }
 };
 
 
-Package.prototype.run = function(opt) {
-    var options = opt || this.options,
+Package.prototype.run = function() {
+    var options = this.options,
         cwd = options.cwd;
         
     // always generate an absolute dir
