@@ -35,6 +35,6 @@ module.exports = {
 	tearDown:function(done){
 		console.log("拷贝md5文件完毕");
 		done()
-	}
-	DESCRIBE:"按照过滤器md5生成的md5.json，将附带<md5>的文件拷贝一份到相同目录中"
+	},
+	DESCRIBE:"按照过滤器md5生成的md5.json，将附带md5-hash的文件名拷贝一份到相同目录中"
 }

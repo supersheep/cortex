@@ -179,4 +179,4 @@ UpdateDB.prototype = {
 exports.create = function(options){
     return new UpdateDB(options);
 };
-exports.DESCRIBE = "更新DianPing库中表的MD5与FileType值"
+exports.DESCRIBE = "更新老库中表的MD5与FileType值"

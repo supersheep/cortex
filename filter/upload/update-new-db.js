@@ -81,4 +81,4 @@ exports.create = function(options){
     return new UpdateDB(options);
 };
 
-exports.DESCRIBE = "同步DianPingCOMM库中表的MD5与FileType值"
+exports.DESCRIBE = "同步新库中表的MD5与FileType值"
