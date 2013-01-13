@@ -10,5 +10,6 @@ module.exports = {
             command:"java -jar {dir} --charset UTF-8 {path} -o {minpath}",
             ext:["css"]
         });
-    }
+    },
+    DESCRIBE:"使用yui压缩css文件"
 };

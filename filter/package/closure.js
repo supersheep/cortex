@@ -9,5 +9,6 @@ module.exports = {
             command:"java -jar {dir} --compilation_level SIMPLE_OPTIMIZATIONS --charset UTF-8 --js {path} --js_output_file {minpath}",
             ext:["js"]
         });
-    }
+    },
+    DESCRIBE:"使用google closure压缩js文件"
 };

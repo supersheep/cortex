@@ -8,5 +8,6 @@ module.exports = {
             command:["cp {path} {path}tmp && jpegtran -copy none -optimize -outfile {path} {path}tmp && rm -f {path}tmp"],
             ext:["jpg"]
         });
-    }
+    },
+    DESCRIBE:"使用jpegtran压缩jpg图片文件"
 };

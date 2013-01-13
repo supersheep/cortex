@@ -97,3 +97,5 @@ PrePublish.prototype = {
 exports.create = function(options){
     return new PrePublish(options);
 };
+
+exports.DESCRIBE = "按package.json中dir的配置将文件调整路径复制到打包目录下"

@@ -8,5 +8,6 @@ module.exports = {
             command:["gifsicle -b -O3 {path}"],
             ext:["gif"]
         });
-    }
+    },
+    DESCRIBE:"使用gifsicle压缩gif图片文"
 };

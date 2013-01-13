@@ -10,7 +10,7 @@ path_mod    = require("path");
 
 /*
 var base_dir = path_mod.join(__dirname,'..','res'), // 准备分析的目录
-	root = path_mod.join(__dirname,'..',config.root_NAME); // 暂存文件夹
+    root = path_mod.join(__dirname,'..',config.root_NAME); // 暂存文件夹
  */
 
 
@@ -22,22 +22,22 @@ function CssTraverser(options){
 
 
 CssTraverser.prototype = {
-	_isCss:function(path){
-		return path_mod.extname(path) === ".css";
-	},
+    _isCss:function(path){
+        return path_mod.extname(path) === ".css";
+    },
 
     _isNotMin:function(path){
         return !/\.min\.css$/.test(path);
     },
 
-	_isImage:function(path){
-		var exts = [".png",".jpg",".gif",".bmp",".jpeg"],
-			ext = path_mod.extname(path);
-		return exts.indexOf(ext) !== -1;
-	},
-	_inFileList:function(path){
-		return this.filelist.indexOf(path) !== -1;
-	},
+    _isImage:function(path){
+        var exts = [".png",".jpg",".gif",".bmp",".jpeg"],
+            ext = path_mod.extname(path);
+        return exts.indexOf(ext) !== -1;
+    },
+    _inFileList:function(path){
+        return this.filelist.indexOf(path) !== -1;
+    },
     setup:function(done){
         console.log("prepare css");
         var self = this;
@@ -107,14 +107,15 @@ CssTraverser.prototype = {
         done();
     },
 
-	tearDown:function(done){
-		console.log("css遍历处理完毕");
+    tearDown:function(done){
+        console.log("css遍历处理完毕");
         done();
-	}
+    }
 }
 
 module.exports = {
     create:function(config){
         return new CssTraverser(config);
-    }
+    },
+    DESCRIBE:"css背景图改为绝对路径"
 };

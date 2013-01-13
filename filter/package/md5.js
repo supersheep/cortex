@@ -40,6 +40,6 @@ module.exports = {
     tearDown:function(done){
         console.log("md5散列完毕");
         done();
-    }
-
+    },
+    DESCRIBE:"对文件计算md5散列，在包目录种保存为.cortex/md5.json"
 }

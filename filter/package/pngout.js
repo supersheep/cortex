@@ -9,5 +9,6 @@ module.exports = {
             command:"{dir} -y {path} {path}",
             ext:["png"]
         });
-    }
+    },
+    DESCRIBE:"使用pngout压缩png图片文件"
 };
