@@ -12,12 +12,14 @@ module.exports = {
     },
     setup:function(done){
         this.root = this.env.build_dir; //config.cwd;
-        this.data = {};
+
         done();
     },
 
     run:function(done){
         var self = this;
+        var data = {};
+
         fsMore.traverseDir(this.root, function(info){
             var relpath = info.relPath,
                 md5code,fullpath,
@@ -27,12 +29,19 @@ module.exports = {
                 content = fs.readFileSync(info.fullPath);
                 fullpath = info.fullPath;
                 md5code = md5(content);
-                self.data["/" + relpath] = md5code;
+                data["/" + relpath] = md5code;
             }
-
         });
 
-        fsMore.writeFileSync(path.join(this.root,".cortex","md5.json"),JSON.stringify(this.data,null,2));
+        for(var key in data){
+            if(/min\.\w+$/.test(key)){
+                data[key] = data[key.replace('.min','')]
+            }
+        }
+
+        console.log(data);
+        
+        fsMore.writeFileSync(path.join(this.root,".cortex","md5.json"),JSON.stringify(data,null,2));
 
         done();
     },
