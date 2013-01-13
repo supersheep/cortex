@@ -80,3 +80,5 @@ UpdateDB.prototype = {
 exports.create = function(options){
     return new UpdateDB(options);
 };
+
+exports.DESCRIBE = "同步DianPingCOMM库中表的MD5与FileType值"

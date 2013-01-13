@@ -7,27 +7,6 @@ fs = require("fs"),
 fsmore = require("../../util/fs-more"),
 ftp_handler = require("../../lib/ftp-handler");
 
-/*
-function generateMd5Path(fullpath){
-    console.log("fullpath",fullpath);
-    var extname = path.extname(fullpath),
-        dirname = path.dirname(fullpath),
-        basename = path.basename(fullpath,extname),
-        md5code = md5(fs.readFileSync(fullpath));
-
-    var md5path = dirname+path.sep+basename+"."+md5code+extname;
-
-    return md5path;
-}
-*/
-
-// function inCortex(info){
-//     return info.relPath.indexOf(".cortex") == 0;
-// }
-
-// function pathWithMd5(info){
-//     return /\.[a-z0-9]{32}\./.test(info.relPath)
-// }
 
 function Transfer(options){
     this.options = options;
@@ -62,22 +41,7 @@ Transfer.prototype = {
                 });
             });
         }
-        
-        // make md5 files
-        /*tasks.push(function(done){
-            fsmore.traverseDir(local_dir,function(info){
-                var fullpath = info.fullPath,
-                    md5path;
 
-                if(info.isFile && !inCortex(info) && !pathWithMd5(info)){
-                    md5path = generateMd5Path(fullpath);
-                    console.log("cp",fullpath,md5path);
-                    fsmore.copyFileSync(fullpath,md5path);
-                }
-            });
-            done();
-        });*/
-        
         if(o.toFTP){
             tasks.push(function(done){
                 ftp_handler.upload({
@@ -109,3 +73,4 @@ Transfer.prototype = {
 exports.create = function(options){
     return new Transfer(options);
 };
+exports.DESCRIBE = "将当前项目上传到to参数指定的ftp地址，若指定了from参数，将先从该地址下载包"
