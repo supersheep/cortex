@@ -1,8 +1,10 @@
 var 
 
 fs = require("fs"),
+lang = require("../util/lang"),
 path = require("path"),
 express = require("express"),
+request = require("request"),
 fsMore = require("../util/fs-more"),
 ActionFactory = require("../lib/action-factory"),
 Server = ActionFactory.create("server");
@@ -17,20 +19,27 @@ Server.AVAILIABLE_OPTIONS = {
     fallback: {
         alias: ["-f", "--fallback"],
         length: 1,
-        description: "指定回滚host，默认为f2e.dp:1337"
+        description: "指定回滚host"
+    },
+    statichost:{
+        alias:["-s","--statichost"],
+        length: 1,
+        description: "指定用来替代的静态server，默认为i{n}.static.dp"
     }
 };
 
 function addslash(p){
-    return p.indexOf("/") == 0 ? "/" + p : p;
+    return p.indexOf("/") == 0 ? p : ("/" + p);
 }
 
 Server.prototype.run = function() {
+    var self = this;
     var root = process.cwd();
     var dirs = fs.readdirSync(root);
 
     var paths = {};
 
+    var default_config,default_config_path,port,fallback;
     dirs.forEach(function(dir){
         var packagePath = path.join(dir,".cortex","package.json");
 
@@ -50,7 +59,7 @@ Server.prototype.run = function() {
 
             fsMore.traverseDir(curroot,function(info){
                 if(info.relPath.indexOf(".") == 0 || info.isDirectory){return false;}
-                var url = "/" + path.join(to,info.relPath);
+                var url = addslash(path.join(to,info.relPath));
                 var fullpath = info.fullPath;
 
                 fullpath = info.fullPath.split()
@@ -59,24 +68,66 @@ Server.prototype.run = function() {
         });
     });
 
-    var port = this.options.port || 1337;
+    default_config_path = fsMore.stdPath(path.join("~",".cortex","server.json"));
+    if(fs.existsSync(default_config_path)){
+        default_config = JSON.parse(fs.readFileSync(default_config_path));
+    }else{
+        default_config = {};
+    }
 
-    express().use(function(req,res){
-        var file = paths[req.url];
+
+    lang.merge(this.options,default_config);
+
+    port = self.options.port;
+    fallback = self.options.fallback;
+    
+    express()
+    .use(express.bodyParser())
+    .use(function(req,res){
+
+        var file = paths[req.url],
+            file_full_path = path.join(process.cwd(),req.url),
+            fallback_url,
+            proxy_req;
+
         if(file){
             res.sendfile(file);
+            return;
+        }else if(fs.existsSync(file_full_path) && !fsMore.isDirectory(file_full_path)){
+            res.sendfile(file_full_path);
+            return;
+        }
+
+        if(fallback){
+            fallback_url = "http://"+fallback+req.url;
+
+            request({
+                url:fallback_url,
+                method:req.method,
+                form:req.body,
+                headers:{
+                    "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.52 Safari/537.17"
+                }
+            },function(err,response,body){
+                var replace = self.options.replace;
+                replace.forEach(function(pair){
+                    body = body.replace(new RegExp(pair[0],"g"),pair[1]);
+                });
+                res.send(res.statusCode,body);
+            });
         }else{
             res.send(404);
         }
+
     }).listen(port);
 
-    console.log("cortex 静态服务已在 " + port + " 启动!");
+    console.log("cortex 静态服务已在 " + port + " 启动! host: "+ fallback );
 };
 
 
 Server.MESSAGE = {
-    USAGE: "usage: ctx server -e <env> -c <cwd>",
-    DESCRIBE: "说明该项目上线失败，它用于告知 cortex，重置"
+    USAGE: "usage: ctx server -p <port> -f <fallback> -s <statichost>",
+    DESCRIBE: "在本地工作目录启动服务，根据项目配置建立映射，并可将未找到的路径反向代理到指定的host上"
 };
 
 
