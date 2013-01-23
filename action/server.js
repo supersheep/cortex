@@ -76,7 +76,7 @@ Server.prototype.run = function() {
     }
 
 
-    lang.merge(this.options,default_config);
+    lang.merge(this.options,default_config,false);
 
     port = self.options.port;
     fallback = self.options.fallback;
