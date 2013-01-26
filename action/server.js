@@ -1,6 +1,7 @@
 var 
 
 fs = require("fs"),
+url = require("url"),
 lang = require("../util/lang"),
 path = require("path"),
 express = require("express"),
@@ -100,18 +101,19 @@ Server.prototype.run = function() {
 
         if(fallback){
             fallback_url = "http://"+fallback+req.url;
-
+            
             request({
                 url:fallback_url,
                 method:req.method,
                 form:req.body,
                 headers:{
+                    "Referer":"http://"+ fallback + url.parse(req.headers.referer).path,
                     "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.52 Safari/537.17"
                 }
             },function(err,response,body){
                 var replace = self.options.replace;
                 replace.forEach(function(pair){
-                    body = body.replace(new RegExp(pair[0],"g"),pair[1]);
+                    body = body && body.replace(new RegExp(pair[0],"g"),pair[1]);
                 });
                 res.send(res.statusCode,body);
             });
