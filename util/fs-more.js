@@ -4,6 +4,7 @@ var
 
 fs = require('fs'),
 path = require('path'),
+minimatch = require('minimatch'),
 // iconv = require('iconv'),
 
 REGEX_REPLACE_FILENAME = /[^\/]+$/,
@@ -139,7 +140,11 @@ function traverseDir(root, callback, options){
 };
 
 
-
+function ignoreFile(file,ignores){
+    return ignores.some(function(ignore){
+        return minimatch(file, ignore, { matchBase: true });
+    });
+}
 
 
 /**
@@ -166,6 +171,11 @@ function copyDirSync(resource, destination, options){
             var
             
             rel_path = info.relPath;
+
+            if(ignoreFile(rel_path,options.ignores)){
+                return;
+            }
+
             copyFileSync(path.join(resource, rel_path), path.join(destination, rel_path), {
                 mode: options.file_mode,
                 encoding: options.encoding

@@ -23,9 +23,11 @@ tracer = require("tracer").colorConsole(),
 fsmore = require('../../util/fs-more'),
 lang = require('../../util/lang'),
 path = require('path'),
+osenv = require('osenv'),
 CORTEX_DIR = '.cortex',
 CONFIG_FILE = 'publish.json';
- 
+
+
 function PrePublish(options){
     this.options = options;
 };
@@ -41,7 +43,8 @@ PrePublish.prototype = {
         
         build_dirs = this._getBuildDir(),
         build_dir = build_dirs.full,
-        build_rel_dir = build_dirs.rel;
+        build_rel_dir = build_dirs.rel,
+        ignores = self._getIgnores();
         
         this._writePackLog(build_rel_dir);
         
@@ -59,13 +62,30 @@ PrePublish.prototype = {
             fsmore.copyDirSync(
                 path.join(self.options.cwd, dir),
                 path.join(build_dir, to),
-                {encoding: 'binary'}
+                {encoding: 'binary',ignores:ignores}
             );
         });
         
         callback();
     },
-    
+    _getIgnores:function(){
+        var path_home = path.join(osenv.home(),".cortex",".ctxignore");
+        var path_workspace = path.join(this.cwd,".cortex",".ctxignore");
+        var path_config = fs.existsSync(path_workspace) ? path_workspace : fs.existsSync(path_home) ? path_home : null;
+        var ignores;
+        if(path_config){
+            ignores = fs.readFileSync(path_config,"utf8");
+            ignores = ignores.split(/\n+/);
+            ignores = ignores.map(function(ignore){
+                return ignore.trim();
+            }).filter(function(ignore){
+                return ignore.indexOf("#");
+            });
+            return ignores;
+        }else{
+            return [];
+        }
+    },
     _writePackLog: function(build_rel_dir){
         var
         cortex_dir = path.join(this.options.cwd, CORTEX_DIR),
