@@ -85,7 +85,7 @@ Server.prototype.run = function() {
     .use(express.bodyParser())
     .use(function(req,res){
 
-        var file = paths[req.url],
+        var file = paths[req.path],
             file_full_path = path.join(process.cwd(),req.url),
             fallback_url,
             proxy_req;
