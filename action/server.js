@@ -95,6 +95,9 @@ function fromTada(req,res,next){
         proxyTo(req,res,host,function(err,resp,body){
             if(err){next();return;}
             if(resp.statusCode !== 200){next();return;}
+            for(var key in resp.headers){
+                res.set(key,resp.headers[key]);
+            }
             res.set("X-Proxy-From",host);
             res.send(resp.statusCode,replaceBody.call(self,body));   
         });
@@ -103,15 +106,34 @@ function fromTada(req,res,next){
     }
 }
 
+function replaceHeaderValue(value){
+    var fb = this.options.fallback;
+    var regexp;
+    if(!fb){
+        return value;
+    }else{
+        regexp = new RegExp(fb.slice(fb.indexOf(".")),"g");
+        value = value.toString().replace(regexp,"localhost:1337");
+    }
+    return value;
+}
+
 function fromFallback(req,res,next){
     var self = this,
         host = this.options.fallback;
 
     if(!host){next();return;} 
     proxyTo(req,res,host,function(err,resp,body){
+        var value;
         if(err){res.send(500,err);return;}
+        for(var key in resp.headers){
+            value = replaceHeaderValue.call(self,resp.headers[key]);
+            res.set(key,value);
+        }
         res.set("X-Proxy-From",host);
-        res.send(resp.statusCode,replaceBody.call(self,body));   
+        body = replaceBody.call(self,body);
+        res.set("content-length","");
+        res.send(resp.statusCode,body);   
     });
 }
 
@@ -174,6 +196,7 @@ Server.prototype.run = function() {
 
 
     express()
+    // .use(express.logger())
     .use(express.bodyParser())
     .use(fromMapping.bind(self))
     .use(fromDirectFile.bind(self))
