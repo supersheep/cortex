@@ -22,10 +22,10 @@ Server.AVAILIABLE_OPTIONS = {
         length: 1,
         description: "指定回滚host"
     },
-    statichost:{
-        alias:["-s","--statichost"],
+    ajax:{
+        alias:["-a","--ajax"],
         length: 1,
-        description: "指定用来替代的静态server，默认为i{n}.static.dp"
+        description: "指定ajax假数据的host，比如tada.f2e.dp"
     }
 };
 
@@ -106,32 +106,39 @@ function fromTada(req,res,next){
     }
 }
 
-function replaceHeaderValue(value){
-    var fb = this.options.fallback;
-    var regexp;
-    if(!fb){
-        return value;
-    }else{
-        regexp = new RegExp(fb.slice(fb.indexOf(".")),"g");
-        value = value.toString().replace(regexp,"localhost:1337");
+
+function setHeader(res,k,v){
+    if(k == "set-cookie"){
+        v = v.replace(/Domain=[^;]*;/g,"");
     }
-    return value;
+
+    res.set(k,v);
 }
 
 function fromFallback(req,res,next){
     var self = this,
         host = this.options.fallback;
 
+    var kv = {};
+
     if(!host){next();return;} 
     proxyTo(req,res,host,function(err,resp,body){
         var value;
         if(err){res.send(500,err);return;}
         for(var key in resp.headers){
-            value = replaceHeaderValue.call(self,resp.headers[key]);
-            res.set(key,value);
+            value = resp.headers[key];
+
+            if(lang.isArray(value)){
+                value.forEach(function(v){
+                    setHeader(res,key,v);
+                });
+            }else{
+                setHeader(res,key,value);
+            }
         }
-        res.set("X-Proxy-From",host);
+
         body = replaceBody.call(self,body);
+        res.set("X-Proxy-From",host);
         res.set("content-length","");
         res.send(resp.statusCode,body);   
     });
