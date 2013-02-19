@@ -78,10 +78,14 @@ function proxyTo(req,res,host,cb){
     },cb);
 }
 
-function replaceBody(body){
-    var replace = this.options.replace;
+function replaceBody(body,req){
+    var opt = this.options
+    var replace = opt.replace;
     replace.forEach(function(pair){
-        body = body && body.replace(new RegExp(pair[0],"g"),pair[1]);
+        body = body && body.replace(new RegExp(pair[0],"g"),lang.sub(pair[1],{
+            port:opt.port,
+            host:req.host
+        }));
     });
     return body;
 }
@@ -99,7 +103,7 @@ function fromTada(req,res,next){
                 res.set(key,resp.headers[key]);
             }
             res.set("X-Proxy-From",host);
-            res.send(resp.statusCode,replaceBody.call(self,body));   
+            res.send(resp.statusCode,replaceBody.call(self,body,req));   
         });
     }else{
         next();
@@ -137,7 +141,7 @@ function fromFallback(req,res,next){
             }
         }
 
-        body = replaceBody.call(self,body);
+        body = replaceBody.call(self,body,req);
         res.set("X-Proxy-From",host);
         res.set("content-length","");
         res.send(resp.statusCode,body);   
