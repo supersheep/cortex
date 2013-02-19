@@ -22,10 +22,10 @@ Server.AVAILIABLE_OPTIONS = {
         length: 1,
         description: "指定回滚host"
     },
-    statichost:{
-        alias:["-s","--statichost"],
+    ajax:{
+        alias:["-a","--ajax"],
         length: 1,
-        description: "指定用来替代的静态server，默认为i{n}.static.dp"
+        description: "指定ajax假数据的host，比如tada.f2e.dp"
     }
 };
 
@@ -33,21 +33,132 @@ function addslash(p){
     return p.indexOf("/") == 0 ? p : ("/" + p);
 }
 
-Server.prototype.run = function() {
-    var self = this;
+
+function parseHeader(req,host){
+    var headers = {};
+    // for(var key in req.headers){
+    //     headers[key] = req.headers[key];
+    // }
+
+    ["x-requested-with","cookie","user-agent"].forEach(function(key){
+        req.headers[key] && (headers[key] = req.headers[key]);
+    })
+    if(req.headers.referer){
+        headers["referer"] = "http://"+ host + url.parse(req.headers.referer).path;
+    }
+    return headers;
+}
+
+// 从映射文件中获取
+function fromMapping(req,res,next){
+
+    var file = this.paths[req.path];
+    if(file){
+        res.sendfile(file);
+        return;
+    }
+    next();
+}
+
+function fromDirectFile(req,res,next){
+    var file_full_path = path.join(process.cwd(),req.path);
+
+    if(!fs.existsSync(file_full_path)){next();return;}
+    if(fsMore.isDirectory(file_full_path)){next();return;}
+
+    res.sendfile(file_full_path);
+}
+
+function proxyTo(req,res,host,cb){
+    request({
+        url: req.protocol + "://" + host + req.url,
+        method:req.method,
+        form:req.body,
+        headers:parseHeader(req,host)
+    },cb);
+}
+
+function replaceBody(body){
+    var replace = this.options.replace;
+    replace.forEach(function(pair){
+        body = body && body.replace(new RegExp(pair[0],"g"),pair[1]);
+    });
+    return body;
+}
+
+function fromTada(req,res,next){
+    var self = this,
+        host = this.options.ajax;
+
+    if(!host){next();return;}
+    if(req.xhr){
+        proxyTo(req,res,host,function(err,resp,body){
+            if(err){next();return;}
+            if(resp.statusCode !== 200){next();return;}
+            for(var key in resp.headers){
+                res.set(key,resp.headers[key]);
+            }
+            res.set("X-Proxy-From",host);
+            res.send(resp.statusCode,replaceBody.call(self,body));   
+        });
+    }else{
+        next();
+    }
+}
+
+
+function setHeader(res,k,v){
+    if(k == "set-cookie"){
+        v = v.replace(/Domain=[^;]*;/g,"");
+    }
+
+    res.set(k,v);
+}
+
+function fromFallback(req,res,next){
+    var self = this,
+        host = this.options.fallback;
+
+    var kv = {};
+
+    if(!host){next();return;} 
+    proxyTo(req,res,host,function(err,resp,body){
+        var value;
+        if(err){res.send(500,err);return;}
+        for(var key in resp.headers){
+            value = resp.headers[key];
+
+            if(lang.isArray(value)){
+                value.forEach(function(v){
+                    setHeader(res,key,v);
+                });
+            }else{
+                setHeader(res,key,value);
+            }
+        }
+
+        body = replaceBody.call(self,body);
+        res.set("X-Proxy-From",host);
+        res.set("content-length","");
+        res.send(resp.statusCode,body);   
+    });
+}
+
+function notFound(req,res,next){
+    res.send(404);
+}
+
+
+Server.prototype.prepareMapping = function(){
+    var paths = {};
     var root = process.cwd();
     var dirs = fs.readdirSync(root);
-
-    var paths = {};
-
-    var default_config,default_config_path,port,fallback;
     dirs.forEach(function(dir){
         var packagePath = path.join(dir,".cortex","package.json");
 
         if(!fs.existsSync(packagePath)){
             return false;
         }
-
 
         console.log("正在为 " + dir + " 建立文件映射");
         var json = JSON.parse(fs.readFileSync(packagePath));
@@ -69,62 +180,39 @@ Server.prototype.run = function() {
         });
     });
 
-    default_config_path = fsMore.stdPath(path.join("~",".cortex","server.json"));
+    this.paths = paths;
+}
+
+Server.prototype.setOptions = function(){
+
+    var default_config_path = fsMore.stdPath(path.join("~",".cortex","server.json"));
     if(fs.existsSync(default_config_path)){
         default_config = JSON.parse(fs.readFileSync(default_config_path));
     }else{
         default_config = {};
     }
 
-
     lang.merge(this.options,default_config,false);
+}
 
-    port = self.options.port;
-    fallback = self.options.fallback;
-    
+Server.prototype.run = function() {
+    var self = this;
+
+    self.prepareMapping();
+    self.setOptions();
+
+
     express()
+    // .use(express.logger())
     .use(express.bodyParser())
-    .use(function(req,res){
-        var file = paths[req.path],
-            file_full_path = path.join(process.cwd(),req.path),
-            fallback_url,
-            headers = {},
-            proxy_req;
+    .use(fromMapping.bind(self))
+    .use(fromDirectFile.bind(self))
+    .use(fromTada.bind(self))
+    .use(fromFallback.bind(self))
+    .use(notFound)
+    .listen(self.options.port)
 
-        if(file){
-            res.sendfile(file);
-            return;
-        }else if(fs.existsSync(file_full_path) && !fsMore.isDirectory(file_full_path)){
-            res.sendfile(file_full_path);
-            return;
-        }
-
-        if(fallback){
-            fallback_url = "http://"+fallback+req.url;
-            headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.52 Safari/537.17";
-
-            if(req.headers.referer){
-                headers["Referer"] = "http://"+ fallback + url.parse(req.headers.referer).path;
-            }
-            request({
-                url:fallback_url,
-                method:req.method,
-                form:req.body,
-                headers:headers
-            },function(err,response,body){
-                var replace = self.options.replace;
-                replace.forEach(function(pair){
-                    body = body && body.replace(new RegExp(pair[0],"g"),pair[1]);
-                });
-                res.send(res.statusCode,body);
-            });
-        }else{
-            res.send(404);
-        }
-
-    }).listen(port);
-
-    console.log("cortex 静态服务已在 " + port + " 启动! host: "+ fallback );
+    console.log("cortex 静态服务已在 " + self.options.port + " 启动! host: "+ self.options.fallback );
 };
 
 
