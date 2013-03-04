@@ -6,7 +6,7 @@ module.exports = {
             config:config,
             throwError:true,
             path:"closure/compiler.jar",
-            command:"java -jar {dir} --compilation_level SIMPLE_OPTIMIZATIONS --charset UTF-8 --js {path} --js_output_file {minpath}",
+            command:"java -jar {dir} --compilation_level SIMPLE_OPTIMIZATIONS --charset UTF-8 --js {path} --js_output_file {minpath} --create_source_map {minpath}.map",
             ext:["js"]
         });
     },

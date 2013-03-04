@@ -85,10 +85,10 @@ Server.prototype.run = function() {
     express()
     .use(express.bodyParser())
     .use(function(req,res){
-
-        var file = paths[req.url],
-            file_full_path = path.join(process.cwd(),req.url),
+        var file = paths[req.path],
+            file_full_path = path.join(process.cwd(),req.path),
             fallback_url,
+            headers = {},
             proxy_req;
 
         if(file){
@@ -101,15 +101,16 @@ Server.prototype.run = function() {
 
         if(fallback){
             fallback_url = "http://"+fallback+req.url;
-            
+            headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.52 Safari/537.17";
+
+            if(req.headers.referer){
+                headers["Referer"] = "http://"+ fallback + url.parse(req.headers.referer).path;
+            }
             request({
                 url:fallback_url,
                 method:req.method,
                 form:req.body,
-                headers:{
-                    "Referer":"http://"+ fallback + url.parse(req.headers.referer).path,
-                    "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.52 Safari/537.17"
-                }
+                headers:headers
             },function(err,response,body){
                 var replace = self.options.replace;
                 replace.forEach(function(pair){

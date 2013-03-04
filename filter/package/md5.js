@@ -37,6 +37,9 @@ module.exports = {
             if(/min\.\w+$/.test(key)){
                 data[key] = data[key.replace('.min','')]
             }
+            if(/\.map$/.test(key)){
+                data[key] = data[key.replace('.map','')]
+            }
         }
 
         console.log(data);
