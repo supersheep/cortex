@@ -11,7 +11,7 @@ REGEX_REPLACE_FILENAME = /[^\/]+$/,
 REGEX_MATCH_FILENAME_EXT = /([^\/]+?)(\.[^\/]+)?$/,
 
 REGEX_REPLACE_LEADING_TILDE = /^~/,
-REGEX_IS_NODE_REQUIRE_PATH = /^(?:\.\/|\.\.\/|~\/|\/)/,
+REGEX_IS_NODE_REQUIRE_PATH = /^(?:\.\/|\.\.\/|~\/|\/|[a-zA-Z]:\\)/,
 
 HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 
