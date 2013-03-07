@@ -66,6 +66,9 @@ function fromDirectFile(req,res,next){
     if(!fs.existsSync(file_full_path)){next();return;}
     if(fsMore.isDirectory(file_full_path)){next();return;}
 
+    if(!path.extname(file_full_path)){
+        res.type("html");
+    }
     res.sendfile(file_full_path);
 }
 
