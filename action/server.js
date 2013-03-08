@@ -8,6 +8,7 @@ express = require("express"),
 request = require("request"),
 fsMore = require("../util/fs-more"),
 ActionFactory = require("../lib/action-factory"),
+ConfigHandler = require('../lib/config-handler'),
 Server = ActionFactory.create("server");
 
 
@@ -17,13 +18,21 @@ Server.AVAILIABLE_OPTIONS = {
         length: 1,
         description: "指定运行端口，默认为1337"
     },
+
+    env: {
+        alias: ["-e", "--env"],
+        length: 1,
+        description: "指定运行的环境"
+    },
+
     fallback: {
-        alias: ["-f", "--fallback"],
+        alias: ["--fallback"],
         length: 1,
         description: "指定回滚host"
     },
+
     ajax:{
-        alias:["-a","--ajax"],
+        alias:["--ajax"],
         length: 1,
         description: "指定ajax假数据的host，比如tada.f2e.dp"
     }
@@ -84,6 +93,7 @@ function proxyTo(req,res,host,cb){
 function replaceBody(body,req){
     var opt = this.options
     var replace = opt.replace;
+
     replace.forEach(function(pair){
         body = body && body.replace(new RegExp(pair[0],"g"),lang.sub(pair[1],{
             port:opt.port,
@@ -161,14 +171,20 @@ Server.prototype.prepareMapping = function(){
     var root = process.cwd();
     var dirs = fs.readdirSync(root);
     dirs.forEach(function(dir){
-        var packagePath = path.join(dir,".cortex","package.json");
+        var packagePath = path.join(dir,".cortex","package.json"),
+            json;
 
         if(!fs.existsSync(packagePath)){
             return false;
         }
 
         console.log("正在为 " + dir + " 建立文件映射");
-        var json = JSON.parse(fs.readFileSync(packagePath));
+
+        try{
+            json = JSON.parse(fs.readFileSync(packagePath));
+        }catch(e){
+            return;
+        }
 
         json.dirs.forEach(function(d){
             var from = addslash(d.dir);
@@ -191,23 +207,39 @@ Server.prototype.prepareMapping = function(){
 }
 
 Server.prototype.setOptions = function(){
-
-    var default_config_path = fsMore.stdPath(path.join("~",".cortex","server.json"));
-    if(fs.existsSync(default_config_path)){
-        default_config = JSON.parse(fs.readFileSync(default_config_path));
-    }else{
-        default_config = {};
+    if(!this.options.env){
+        this.options.env = "alpha";
+        console.log("由于未指定环境，将自动设置为 alpha，如果需要指定，请使用 -e, --env 参数")
     }
 
-    lang.merge(this.options,default_config,false);
+    var ch = new ConfigHandler({
+            file: '.cortex' + path.sep + 'server.json',
+            env: this.options.env,
+            excludes: ['env']
+        });
+        
+    ch.getConf(this.options);
+
+    if(!this.options.replace){
+        this.options.replace = [];
+    }
+
+    if(typeof this.options.replace === 'string'){
+        this.options.replace = this.options.replace.split(',').map(function(r) {
+            return r.trim();
+        });
+    }
+
+    if(!this.options.port){
+        this.options.port = 8765;
+    }
 }
 
 Server.prototype.run = function() {
     var self = this;
 
-    self.prepareMapping();
     self.setOptions();
-
+    self.prepareMapping();
 
     express()
     // .use(express.logger())
@@ -219,7 +251,7 @@ Server.prototype.run = function() {
     .use(notFound)
     .listen(self.options.port)
 
-    console.log("cortex 静态服务已在 " + self.options.port + " 启动! host: "+ self.options.fallback );
+    console.log("cortex 静态服务已在 localhost:" + self.options.port + " 启动! 将 fallback 到 " + self.options.fallback );
 };
 
 
