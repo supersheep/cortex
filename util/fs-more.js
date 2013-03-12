@@ -23,7 +23,7 @@ HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 function writeFileSync(pathname, content, options){
     options || (options = {});
 
-    if(!REGEX_REPLACE_FILENAME.test(path)){
+    if(!REGEX_REPLACE_FILENAME.test(pathname)){
         return false;
     }
     
