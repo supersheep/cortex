@@ -58,10 +58,19 @@ function parseHeader(req,host){
     return headers;
 }
 
+function rewrite(req,res,next){
+    req.url = req.url
+    .replace(/\.v[0-9]+/,'')
+    .replace(/\.[a-zA-Z0-9]{32}/,'')
+    .replace(/\.min/,"");
+
+    next();
+}
+
 // 从映射文件中获取
 function fromMapping(req,res,next){
-
-    var file = this.paths[req.path];
+    var reqpath = url.parse(req.url).pathname;
+    var file = this.paths[reqpath];
     if(file){
         res.sendfile(file);
         return;
@@ -70,7 +79,8 @@ function fromMapping(req,res,next){
 }
 
 function fromDirectFile(req,res,next){
-    var file_full_path = path.join(process.cwd(),req.path);
+    var reqpath = url.parse(req.url).pathname;
+    var file_full_path = path.join(process.cwd(),reqpath);
 
     if(!fs.existsSync(file_full_path)){next();return;}
     if(fsMore.isDirectory(file_full_path)){next();return;}
@@ -244,6 +254,7 @@ Server.prototype.run = function() {
     express()
     // .use(express.logger())
     .use(express.bodyParser())
+    .use(rewrite.bind(self))
     .use(fromMapping.bind(self))
     .use(fromDirectFile.bind(self))
     .use(fromTada.bind(self))
