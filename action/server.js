@@ -71,8 +71,19 @@ function rewrite(req,res,next){
 function fromMapping(req,res,next){
     var reqpath = url.parse(req.url).pathname;
     var file = this.paths[reqpath];
+
     if(file){
         res.sendfile(file);
+        return;
+    }
+    next();
+}
+
+function fromBuild(req,res,next){
+    var reqpath = url.parse(req.url).pathname;
+    var rule = this.builds[reqpath];
+    if(rule){
+        rule.out(req,res,rule.data);
         return;
     }
     next();
@@ -88,6 +99,7 @@ function fromDirectFile(req,res,next){
     if(!path.extname(file_full_path)){
         res.type("html");
     }
+
     res.sendfile(file_full_path);
 }
 
@@ -171,6 +183,7 @@ function fromFallback(req,res,next){
     });
 }
 
+
 function notFound(req,res,next){
     res.send(404);
 }
@@ -193,6 +206,7 @@ Server.prototype.prepareMapping = function(){
         try{
             json = JSON.parse(fs.readFileSync(packagePath));
         }catch(e){
+            console.log("JSON parse error ",packagePath);
             return;
         }
 
@@ -201,7 +215,6 @@ Server.prototype.prepareMapping = function(){
             var to = addslash(d.to || d.dir);
             var curroot = path.join(dir,from);
 
-
             fsMore.traverseDir(curroot,function(info){
                 if(info.relPath.indexOf(".") == 0 || info.isDirectory){return false;}
                 var url = addslash(path.join(to,info.relPath));
@@ -209,11 +222,56 @@ Server.prototype.prepareMapping = function(){
 
                 fullpath = info.fullPath.split()
                 paths[url] = path.join(root,curroot,info.relPath);
+
             });
+
         });
     });
 
     this.paths = paths;
+}
+
+Server.prototype.prepareBuild = function(){
+    var self = this;
+    var builds = {};
+    var root = process.cwd();
+    var dirs = fs.readdirSync(root);
+    var build_filter_dir = path.join(__dirname,"..","filter","server");
+    var filters = fs.readdirSync(build_filter_dir);
+
+    dirs.forEach(function(dir){
+        var build_file_path = path.join(root,dir,"build.json");
+        var build_rule;
+        if(!fs.existsSync(build_file_path)){
+            return false;
+        }
+
+        try{
+            build_rule = JSON.parse(fs.readFileSync(build_file_path));
+        }catch(e){
+            console.log(e,content);
+            return false;
+        }
+
+        filters.forEach(function(filter_file_name){
+            var filter_name = path.basename(filter_file_name,".js")
+                ,filter_path = path.join(build_filter_dir,filter_file_name)
+                ,data = build_rule[filter_name]
+                ,filter
+                ,rules;
+
+            if(!fs.existsSync(filter_path) || !data){return false;}
+            filter = require(filter_path);
+            rules = filter.parse(path.join(root,dir),data);
+            rules.forEach(function(rule){
+                builds[rule.path] = {
+                    out:filter.out,
+                    data:rule.data
+                }
+            });
+        });
+    });
+    self.builds = builds;
 }
 
 Server.prototype.setOptions = function(){
@@ -250,12 +308,14 @@ Server.prototype.run = function() {
 
     self.setOptions();
     self.prepareMapping();
+    self.prepareBuild();
 
     express()
     // .use(express.logger())
     .use(express.bodyParser())
     .use(rewrite.bind(self))
     .use(fromMapping.bind(self))
+    .use(fromBuild.bind(self))
     .use(fromDirectFile.bind(self))
     .use(fromTada.bind(self))
     .use(fromFallback.bind(self))
