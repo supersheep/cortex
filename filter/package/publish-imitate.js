@@ -70,7 +70,7 @@ PrePublish.prototype = {
     },
     _getIgnores:function(){
         var path_home = path.join(osenv.home(),".cortex",".ctxignore");
-        var path_workspace = path.join(this.cwd,".cortex",".ctxignore");
+        var path_workspace = path.join(this.options.cwd,".cortex",".ctxignore");
         var path_config = fs.existsSync(path_workspace) ? path_workspace : fs.existsSync(path_home) ? path_home : null;
         var ignores;
         if(path_config){
