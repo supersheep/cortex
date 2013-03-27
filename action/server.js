@@ -217,7 +217,7 @@ Server.prototype.prepareMapping = function(){
 
             fsMore.traverseDir(curroot,function(info){
                 if(info.relPath.indexOf(".") == 0 || info.isDirectory){return false;}
-                var url = addslash(path.join(to,info.relPath));
+                var url = addslash(path.join(to,info.relPath).replace(/\\/g,"/"));
                 var fullpath = info.fullPath;
 
                 fullpath = info.fullPath.split()
