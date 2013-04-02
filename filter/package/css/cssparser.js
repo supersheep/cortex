@@ -151,8 +151,14 @@ CssParser.prototype = {
 			}
 		}
 
+		var keyreg;
 		for(var key in matches){
-			content = content.replace(key,matches[key]);
+			keyreg = key.replace(/\//g,"\\/")
+				.replace(/\(/g,"\\(")
+				.replace(/\)/g,"\\)")
+				.replace(/\./g,"\\.");
+			keyreg = new RegExp(keyreg,"g");
+			content = content.replace(keyreg,matches[key]);
 		}
 
 		/**
@@ -239,6 +245,9 @@ CssParser.prototype = {
 
 		
 		if(!fs.existsSync(real_full_path)){
+			console.log(fullpath);
+			console.log(imgpath);
+			console.log(absolute);
 			error_info = "图片不存在 " + csspath + " -> " + fullpath;
 			console.warn("[WARN] " + error_info);
 			return false;
