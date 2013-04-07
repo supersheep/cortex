@@ -29,17 +29,23 @@ Transfer.prototype = {
             process.exit(1);
         }
 
+        console.log(local_dir);
+        console.log(cwd);
+
         tasks.push(function(done){
-            var command = "zip " + name + " " + local_dir;
+            var command = "zip -r " + name + " *";
             console.log(command);
-            child_process.exec(command, function(){
+            child_process.exec(command,{
+                cwd:path.join(local_dir)
+            }, function(err,stdout){
+                console.log(stdout);
                 done();
             });
         });
 
         tasks.push(function(done){
             ftp_handler.uploadFile({
-                localName   : path.join(cwd,name),
+                localName   : path.join(local_dir,name),
                 remoteName  : name,
                 user        : o.toFTP.user,
                 password    : o.toFTP.password,

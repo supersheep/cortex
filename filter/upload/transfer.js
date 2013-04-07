@@ -4,13 +4,60 @@ path = require("path"),
 async = require("async"),
 // md5 = require("MD5"),
 fs = require("fs"),
+child_process = require("child_process"),
 fsmore = require("../../util/fs-more"),
-ftp_handler = require("../../lib/ftp-handler");
+ftp_handler = require("../../lib/ftp-handler"),
+temp_download_dir = fsmore.stdPath( path.join('~', '.cortex/temp-download') ),
+zipname = "build.zip",
+zippath = path.join(temp_download_dir,zipname);
 
 
 function Transfer(options){
     this.options = options;
 };
+
+
+function downloadZip(done){
+    var o = this.options;
+    var remote_zipname = o.fromFTP.dir.slice(1);
+    ftp_handler.downloadFile({
+        localName   : zippath,
+        remoteName  : remote_zipname,
+        user        : o.fromFTP.user,
+        password    : o.fromFTP.password,
+        host        : o.fromFTP.host,
+        port        : o.fromFTP.port
+    }, function(){
+        done(); 
+    });
+}
+
+function unzip(done){
+    var command = "unzip " + zippath + " -d " + temp_download_dir;
+    console.log(command);
+    child_process.exec(command, {
+        cwd:path.join(zippath,'..')
+    }, function(err,stdout){
+        console.log(stdout);
+        done();
+    });
+}
+
+function downloadDir(done){
+    var o = this.options;
+    ftp_handler.download({
+        localDir    : temp_download_dir,
+        remoteDir   : o.fromFTP.dir,
+        user        : o.fromFTP.user,
+        password    : o.fromFTP.password,
+        host        : o.fromFTP.host,
+        port        : o.fromFTP.port
+        
+    }, function(){
+        done(); 
+    });
+}
+
 
 Transfer.prototype = {
 
@@ -19,34 +66,27 @@ Transfer.prototype = {
         
         o = this.options,
         tasks = [],
-        temp_download_dir = fsmore.stdPath( path.join('~', '.cortex/temp-download') ),
         local_dir = o.from;
         if(o.fromFTP){
             local_dir = temp_download_dir;
         
             fsmore.mkdirSync(temp_download_dir);
             fsmore.emptyDirSync(temp_download_dir);
+
+            if(path.extname(o.fromFTP.dir) == ".zip"){
+                tasks.push(downloadZip.bind(this));    
+                tasks.push(unzip.bind(this));
+            }else{
+                tasks.push(downloadDir.bind(this));
+            }
             
-            tasks.push(function(done){
-                ftp_handler.download({
-                    localDir    : temp_download_dir,
-                    remoteDir   : o.fromFTP.dir,
-                    user        : o.fromFTP.user,
-                    password    : o.fromFTP.password,
-                    host        : o.fromFTP.host,
-                    port        : o.fromFTP.port
-                    
-                }, function(){
-                    done(); 
-                });
-            });
         }
 
         if(o.toFTP){
             tasks.push(function(done){
                 ftp_handler.upload({
                     localDir    : local_dir,
-                    remoteDir   : o.toFTP.dir,
+                    remoteDir   : o.toFTP.dir.slice(1),
                     user        : o.toFTP.user,
                     password    : o.toFTP.password,
                     host        : o.toFTP.host,
