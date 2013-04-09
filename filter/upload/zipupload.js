@@ -21,6 +21,7 @@ Transfer.prototype = {
         o = this.options,
         tasks = [],
         local_dir = o.from,
+        remote_dir = o.toFTP.dir,
         cwd = o.cwd,
         name = "build.zip";
 
@@ -40,18 +41,39 @@ Transfer.prototype = {
             });
         });
 
+        var list = remote_dir.slice(1).split("/");
+        var dirs = [];
+        console.log(list);
+        console.log(remote_dir,remote_dir.slice(0));
+        while(list.length){
+            console.log(list);
+            dirs.push("/" + list.join("/"));
+            list.pop();
+        }
+        console.log(dirs);
+        dirs.reverse().forEach(function(dir){
+            tasks.push(function(done){
+                ftp_handler.mkdir({
+                    dir         : dir,
+                    user        : o.toFTP.user,
+                    password    : o.toFTP.password,
+                    host        : o.toFTP.host,
+                    port        : o.toFTP.port 
+                }, done);
+            });
+        });
+
         tasks.push(function(done){
-            console.log("uploading " + local_dir + " -> " + o.toFTP.dir + name);
+            console.log("uploading " + local_dir + " -> " + path.join(remote_dir,name));
+
             ftp_handler.uploadFile({
                 localName   : path.join(local_dir,name),
-                remoteName  : name,
+                remoteName  : path.join(remote_dir,name),
                 user        : o.toFTP.user,
                 password    : o.toFTP.password,
                 host        : o.toFTP.host,
                 port        : o.toFTP.port 
-            }, function(){
-                done();
-            });
+            }, done);
         });
         
         this.env.local_dir = local_dir;
