@@ -19,7 +19,7 @@ function Transfer(options){
 
 function downloadZip(done){
     var o = this.options;
-    var remote_zipname = o.fromFTP.dir.slice(1);
+    var remote_zipname = o.fromFTP.dir;
     ftp_handler.downloadFile({
         localName   : zippath,
         remoteName  : remote_zipname,
@@ -86,7 +86,7 @@ Transfer.prototype = {
             tasks.push(function(done){
                 ftp_handler.upload({
                     localDir    : local_dir,
-                    remoteDir   : o.toFTP.dir.slice(1),
+                    remoteDir   : o.toFTP.dir,
                     user        : o.toFTP.user,
                     password    : o.toFTP.password,
                     host        : o.toFTP.host,

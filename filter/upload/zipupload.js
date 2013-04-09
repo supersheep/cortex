@@ -29,9 +29,6 @@ Transfer.prototype = {
             process.exit(1);
         }
 
-        console.log(local_dir);
-        console.log(cwd);
-
         tasks.push(function(done){
             var command = "zip -r " + name + " *";
             console.log(command);
@@ -44,6 +41,7 @@ Transfer.prototype = {
         });
 
         tasks.push(function(done){
+            console.log("uploading " + local_dir + " -> " + o.toFTP.dir + name);
             ftp_handler.uploadFile({
                 localName   : path.join(local_dir,name),
                 remoteName  : name,
