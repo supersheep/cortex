@@ -32,6 +32,12 @@ function downloadZip(done){
     });
 }
 
+function unlinkZip(done){
+    console.log("unlink "+zippath);
+    fs.unlinkSync(zippath);
+    done();
+}
+
 function unzip(done){
     var command = "unzip " + zippath + " -d " + temp_download_dir;
     console.log(command);
@@ -76,6 +82,7 @@ Transfer.prototype = {
             if(path.extname(o.fromFTP.dir) == ".zip"){
                 tasks.push(downloadZip.bind(this));    
                 tasks.push(unzip.bind(this));
+                tasks.push(unlinkZip.bind(this));
             }else{
                 tasks.push(downloadDir.bind(this));
             }
