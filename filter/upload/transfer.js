@@ -44,7 +44,6 @@ function unzip(done){
     child_process.exec(command, {
         cwd:path.join(zippath,'..')
     }, function(err,stdout){
-        console.log(stdout);
         done();
     });
 }

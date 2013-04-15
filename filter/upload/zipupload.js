@@ -31,7 +31,7 @@ Transfer.prototype = {
         }
 
         tasks.push(function(done){
-            var command = "zip -r " + name + " * .*";
+            var command = "zip -r " + name + " * .cortex";
             console.log(command);
             child_process.exec(command,{
                 cwd:path.join(local_dir)

@@ -97,7 +97,12 @@ function fromDirectFile(req,res,next){
     if(fsMore.isDirectory(file_full_path)){next();return;}
 
     if(!path.extname(file_full_path)){
-        res.type("html");
+        try{
+            JSON.parse(fs.readFileSync(file_full_path,"utf8"))
+            res.type("json");
+        }catch(e){
+            res.type("html");
+        }
     }
 
     res.sendfile(file_full_path);
