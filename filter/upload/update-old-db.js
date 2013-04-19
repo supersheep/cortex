@@ -50,7 +50,7 @@ UpdateDB.prototype = {
             return ""+ret;
         }
 
-        var time = lang.sub("{0}{1}{2}{3}{4}",[(now.getFullYear() + "").split(2),now.getMonth()+1,now.getDate(),now.getHours()].map(function(number){
+        var time = lang.sub("{0}{1}{2}{3}{4}{5}",[(now.getFullYear()+"").slice(2),now.getMonth()+1,now.getDate(),now.getHours(),now.getMinutes()].map(function(number){
             return addZero(number);
         }));
 
@@ -63,8 +63,7 @@ UpdateDB.prototype = {
                 db.query(q,function(err,rows){
                     if(err)throw err;
                     var row = rows[0],
-                        new_version = time,
-                        pair = {URL:url,Version:new_version,MD5:"v"+new_version,FileType:0},
+                        pair = {URL:url,Version:time,MD5:"v"+(+now),FileType:0},
                         query = row
                         ? db.sqlMaker("update",table,pair,where)
                         : db.sqlMaker("insert",table,pair);
