@@ -43,17 +43,27 @@ UpdateDB.prototype = {
         }
 
         // update /x_x/version.js 及 /x_x/version.min.js
-        var timestamp = +new Date();
+        var now = new Date();
+
+        function addZero(number){
+            var ret = (number > 9 && number < 100) ? number : "0" + number;
+            return ""+ret;
+        }
+
+        var time = lang.sub("{0}{1}{2}{3}{4}",[(now.getFullYear() + "").split(2),now.getMonth()+1,now.getDate(),now.getHours()].map(function(number){
+            return addZero(number);
+        }));
+
         ["/x_x/version.js","/x_x/version.min.js"].forEach(function(url){
             tasks.push(function(done){
                 var table = self.options.dbversion,
-                    where = {"URL":url},
+                    where = {"URL":url}, 
                     q =  db.sqlMaker("select",table,{},where);
 
                 db.query(q,function(err,rows){
                     if(err)throw err;
                     var row = rows[0],
-                        new_version = timestamp,
+                        new_version = time,
                         pair = {URL:url,Version:new_version,MD5:"v"+new_version,FileType:0},
                         query = row
                         ? db.sqlMaker("update",table,pair,where)
