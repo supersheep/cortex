@@ -114,6 +114,7 @@ lang.mix(Upload.prototype, {
              */
             file: '.cortex/upload.json',
             env: o.env,
+            cwd: o.cwd,
             excludes: ['from', 'env']
             
         });
