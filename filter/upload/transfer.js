@@ -27,8 +27,14 @@ function downloadZip(done){
         password    : o.fromFTP.password,
         host        : o.fromFTP.host,
         port        : o.fromFTP.port
-    }, function(){
-        done(); 
+    }, function(e){
+        if(e){
+            console.log("下载包发生异常");
+            console.log(e);
+            process.exit(1);
+        }else{
+            done();   
+        } 
     });
 }
 
@@ -44,7 +50,13 @@ function unzip(done){
     child_process.exec(command, {
         cwd:path.join(zippath,'..')
     }, function(err,stdout){
-        done();
+        if(err){
+            console.log("解压包发生异常");
+            console.log(err);
+            process.exit(1);
+        }else{
+            done();   
+        } 
     });
 }
 
