@@ -7,7 +7,7 @@ fs = require("fs"),
 child_process = require("child_process"),
 fsmore = require("../../util/fs-more"),
 ftp_handler = require("../../lib/ftp-handler"),
-temp_download_dir = fsmore.stdPath( path.join('~', '.cortex/temp-download') ),
+temp_download_dir = require("temp").path(),
 zipname = "build.zip",
 zippath = path.join(temp_download_dir,zipname);
 
