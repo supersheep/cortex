@@ -63,6 +63,7 @@ UpdateDB.prototype = {
                 db.query(q,function(err,rows){
                     if(err)throw err;
                     var row = rows[0],
+                        timestamp = +new Date(),
                         pair = {URL:url,Version:time,MD5:"v"+(+now),FileType:0},
                         query = row
                         ? db.sqlMaker("update",table,pair,where)
@@ -71,7 +72,7 @@ UpdateDB.prototype = {
                     
                     db.query(query,function(err){
                         if(err)throw err;
-                        console.log((row?"更新":"插入") + " " + JSON.stringify(pair));
+                        console.log((row?"更新":"插入") + " " + JSON.stringify(pair) + " " + (+new Date() - timestamp) + "ms");
                         self.env.updatelist.push(pair);
                         done();
                     });
@@ -164,6 +165,7 @@ UpdateDB.prototype = {
             where = {URL:key},
             qs = db.sqlMaker("select",table,{},where);
 
+        var timestamp = +new Date();
         db.query(qs, function(err, rows) {
             if(err) throw err;
             var row = rows[0],
@@ -177,7 +179,7 @@ UpdateDB.prototype = {
 
             db.query(query,function(err){
                 if(err)throw err;
-                console.log((row?"更新":"插入") + " " + JSON.stringify(pair));
+                console.log((row?"更新":"插入") + " " + JSON.stringify(pair) + " " + (+new Date() - timestamp) + "ms");
                 self.env.updatelist.push(pair);
                 done();
             });

@@ -49,6 +49,7 @@ UpdateDB.prototype = {
                 db.query(qs, function(err, rows) {
                     if(err) throw err;
                     var row = rows[0],
+                        timestamp = +new Date(),
                         query = row
                             ? db.sqlMaker("update",table,pair,{
                                 URL:key
@@ -59,7 +60,7 @@ UpdateDB.prototype = {
 
                     db.query(query,function(err){
                         if(err) throw err;
-                        console.log((row?"更新":"插入") + " " + JSON.stringify(pair));
+                        console.log((row?"更新":"插入") + " " + JSON.stringify(pair) + " " + (+new Date() - timestamp) + "ms");
                         done();
                     });
                 });
