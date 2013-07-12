@@ -50,8 +50,20 @@ function unzip(done){
     child_process.exec(command, {
         cwd:path.join(zippath,'..')
     }, function(err,stdout){
+        var destpath = "/data/appdatas/ctx/debug/" 
+        + path.basename(path.dirname(zippath)) + "/"
+        + path.basename(zippath);
+
+
         if(err){
             console.log("解压包发生异常");
+            if(!fs.existsSync(zippath)){
+                console.log("包文件不存在");
+            }else{
+                console.log("包内容异常");
+                console.log("拷贝build.zip -> " + destpath);    
+                fsmore.copyFileSync(zippath,destpath);
+            }
             console.log(err);
             process.exit(1);
         }else{
